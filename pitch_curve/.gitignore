@@ -1,0 +1,4 @@
+*.wav 
+./soundfiles/
+./user_recordings/
+./processed_recordings/
