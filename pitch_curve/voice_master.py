@@ -147,7 +147,8 @@ class Mimic_Game:
         return None
         
     def play_go(self):
-        go_sound = pygame.mixer.Sound('./soundfiles/231277__steel2008__race-start-ready-go.wav')
+        go_wave = '231277__steel2008__race-start-ready-go.wav'
+        go_sound = pygame.mixer.Sound('./soundfiles/{}'.format(go_wave))
         go_sound.play()
         while pygame.mixer.get_busy():
             pass

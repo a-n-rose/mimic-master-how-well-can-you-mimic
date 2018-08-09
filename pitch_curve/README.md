@@ -7,9 +7,11 @@ A game using pitch analysis to compare target sounds and mimicked sounds.
 
 In the directory with the python files, create a directory called 'soundfiles'. In this directory put any wave files you would like the game to play. I collected free sounds from freesound.org.
 
-The game currently requires a "1-2-3 go!" sound in the 'soundfiles directory'. I used the recording: 
+The game currently requires a "go_wave" wavefile in the 'soundfiles directory'. I used the recording: 
 231277__steel2008__race-start-ready-go.wav
-from freesound.org
+from freesound.org. Whatever file you use, change the name in 'play_go' function in the file 'voice_master.py'
+
+When everything is set up, run 'voice_master_main.py'.
 
 ### Prerequisites
 
@@ -18,16 +20,15 @@ A microphone is necessary, headphones are advised, and definitely don't do this 
 All the dependencies can be installed using
 
 ```
-pip install numpy
-pip install librosa
-
+pip install __________
 ```
+For the dependencies necessary, please refer to the installations.md file
 
 ### Installing
 
 To set up a virtual environment, in the directory you have your project in, type the following into your commandline:
 ```
-python3 -m venv env
+python -m venv env
 source env/bin/activate
 ```
 Your virtual environment should be activated and you can install all the dependencies via:
