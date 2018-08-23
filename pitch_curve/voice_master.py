@@ -129,7 +129,7 @@ class Mimic_Game:
                 return False
      
     def rand_sound2mimic(self):
-        os.chdir('./soundfiles/')
+        os.chdir('./soundfiles/start/')
         try:
             sounds = [wave for wave in glob.glob('*.wav')]
             rand_ind = random.randint(0,len(sounds)-1)

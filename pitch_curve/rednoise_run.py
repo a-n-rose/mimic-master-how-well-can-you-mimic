@@ -23,16 +23,22 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     
     y_stftred = np.array([rednoise(npow_mean,npow_var,y_power[i],y_stft[i]) for i in range(y_stft.shape[0])])
 
-    
+    rednoise_samp = stft2wave(y_stftred,len(y))
+    date = get_date()
+    savewave('./processed_recordings/rednoise_{}.wav'.format(date),rednoise_samp,sr)
+    print('Background noise reduction complete. File saved.')
+    print('Now removing beginning silence')
+
     voice_start,voice = sound_index(y_energy,start=True,rms_mean_noise = n_energy_mean)
     if voice:
+        #first save file before removing silence
         print(voice_start)
         print(voice_start/len(y_energy))
         start = voice_start/len(y_energy)
         start_time = (len(y)*start)/sr
         print("Start time: {} sec".format(start_time))
-        y_stft_voice = y_stftred[voice_start:]
-        voicestart_samp = stft2wave(y_stft_voice,len(y))
+        y_stftred = y_stftred[voice_start:]
+        voicestart_samp = stft2wave(y_stftred,len(y))
         date = get_date()
         savewave('./processed_recordings/rednoise_speechstart_{}.wav'.format(date),voicestart_samp,sr)
         print('Removed silence from beginning of recording. File saved.')
@@ -42,12 +48,8 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         return None
         
     
-    rednoise_samp = stft2wave(y_stft_voice,len(y))
-    date = get_date()
-    savewave('./processed_recordings/rednoise_{}.wav'.format(date),rednoise_samp,sr)
-    print('Background noise reduction complete. File saved.')
+
     print('Now matching volume to target recording.')
-    
     y_stftmatched = matchvol(t_power,y_power,y_stftred)
     matchvol_samp = stft2wave(y_stftmatched,len(y))
     savewave('./processed_recordings/rednoise2_{}.wav'.format(date),matchvol_samp,sr)
