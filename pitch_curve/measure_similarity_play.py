@@ -11,14 +11,21 @@ Note: the pitch and power levels were calculated at each millisecond
 import numpy as np
 import pandas as pd
 import librosa
+import time
+
 
 
 def wave2stft(wavefile):
+    print(wavefile)
+    interval = 0.01
+    start = time.time()
     y, sr = librosa.load(wavefile)
     if len(y)%2 != 0:
         y = y[:-1]
-    stft = librosa.stft(y,hop_length=int(0.001*sr))
+    stft = librosa.stft(y,hop_length=int(interval*sr))
     stft = np.transpose(stft)
+    duration = time.time() - start
+    print("Duration of STFT calculation with {} ms intervals: {} seconds".format(interval*1000,duration))
     return stft, y, sr
 
 def stft2power(stft_matrix):
@@ -27,7 +34,11 @@ def stft2power(stft_matrix):
     return(power)
 
 def get_pitch2(y,sr):
-    pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(0.001*sr))
+    interval = 0.01
+    start = time.time()
+    pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr))
+    duration = time.time()-start
+    print("Duration of pitch calculation with {} ms intervals: {} seconds".format(interval*1000,duration))
     return pitches,mag
 
 def match_len(matrix_list):
@@ -47,11 +58,21 @@ def get_zscores(matrix):
     return zscores
 
 def long_term_info(y,sr):
-    stft = librosa.stft(y,hop_length=int(0.001*sr),n_fft=int(0.256*sr))
+    interval = 0.01
+    window = 0.256
+    start_stft = time.time()
+    stft = librosa.stft(y,hop_length=int(interval*sr),n_fft=int(window*sr))
+    end_stft = time.time()
     stft = np.transpose(stft)
     power = np.abs(stft)**2
-    pitch, mag = librosa.piptrack(y=y,sr=sr,hop_length=int(0.001*sr),n_fft=int(0.256*sr))
+    start_pitch = time.time()
+    pitch, mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr),n_fft=int(window*sr))
+    end_pitch = time.time()
+    duration_stft = end_stft - start_stft
+    duration_pitch = end_pitch - start_pitch
     pitch = np.transpose(pitch)
+    print("Duration of STFT calculation with {} ms intervals and {} ms windows: {} seconds".format(interval*1000,window*1000,duration_stft))
+    print("Duration of pitch calculation with {} ms intervals and {} ms windows: {} seconds".format(interval*1000,window*1000,duration_pitch))
     return stft,power,pitch
 
 def hermes_wc(pitch_list, sumpower):
@@ -79,6 +100,7 @@ mpitch = np.transpose(mp)
 mpower = stft2power(mstft)
 
 astft,a,sr = wave2stft(animal_sound)
+print(animal_sound)
 ap,amag = get_pitch2(a,sr)
 apitch = np.transpose(ap)
 apower = stft2power(astft)
@@ -140,6 +162,7 @@ apower_zscore = get_zscores(apower)
 #I'm going to do a variation of this perhaps...
 #first compare the difference of using local vs long-term information
 mstft_long,mpower_long,mpitch_long = long_term_info(m,sr)
+print(animal_sound)
 astft_long,apower_long,apitch_long = long_term_info(a,sr)
 
 powerlist_long = match_len([mpower_long,apower_long])
@@ -162,7 +185,6 @@ print("Similarity score for the matched mimic: {}".format(sum(coefficients1)))
 print("Similarity score for the random mimic: {}".format(sum(coefficients2)))
 print("Similarity score for the matched mimic over longer intervals: {}".format(sum(coefficients_long)))
 print("Similarity score for the random mimic over longer intervals: {}".format(sum(coefficients_long2)))
-
 
 
 
