@@ -19,7 +19,6 @@ import pygame
 import librosa
 
 
-
 class Mimic_Game:
     def __init__(self):
         print(
@@ -129,7 +128,7 @@ class Mimic_Game:
                 return False
      
     def rand_sound2mimic(self):
-        os.chdir('./soundfiles/start/')
+        os.chdir('./soundfiles/')
         try:
             sounds = [wave for wave in glob.glob('*.wav')]
             rand_ind = random.randint(0,len(sounds)-1)
@@ -148,7 +147,7 @@ class Mimic_Game:
         
     def play_go(self):
         go_wave = '231277__steel2008__race-start-ready-go.wav'
-        go_sound = pygame.mixer.Sound('./soundfiles/{}'.format(go_wave))
+        go_sound = pygame.mixer.Sound('./soundfiles/start/{}'.format(go_wave))
         go_sound.play()
         while pygame.mixer.get_busy():
             pass

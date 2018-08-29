@@ -21,6 +21,9 @@ import librosa
 from scipy import signal
 import datetime
 
+interval = 0.01
+#sr = 22050
+
 def get_date():
     time = datetime.datetime.now()
     time_str = "{}y{}m{}d{}h{}m{}s".format(time.year,time.month,time.day,time.hour,time.minute,time.second)
@@ -30,13 +33,14 @@ def wave2stft(wavefile):
     y, sr = librosa.load(wavefile)
     if len(y)%2 != 0:
         y = y[:-1]
-    stft = librosa.stft(y,hop_length=int(0.001*sr),n_fft=int(0.256*sr))
+    stft = librosa.stft(y,hop_length=int(interval*sr),n_fft=int(0.256*sr))
     stft = np.transpose(stft)
     return stft, y, sr
 
 def stft2wave(stft,len_origsamp):
+    sr=22050
     istft = np.transpose(stft.copy())
-    samples = librosa.istft(istft,length=len_origsamp)
+    samples = librosa.istft(istft,hop_length=int(interval*sr),length=len_origsamp)
     return samples
 
 def stft2power(stft_matrix):
@@ -58,11 +62,11 @@ def get_pitch(wavefile):
     y, sr = librosa.load(wavefile)
     if len(y)%2 != 0:
         y = y[:-1]
-    pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(0.001*sr),n_fft=int(0.256*sr))
+    pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr),n_fft=int(0.256*sr))
     return pitches,mag
 
 def get_pitch2(y,sr):
-    pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(0.001*sr),n_fft=int(0.256*sr))
+    pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr),n_fft=int(0.256*sr))
     return pitches,mag
 
 def get_pitch_mean(matrix_pitches):
