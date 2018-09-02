@@ -2,7 +2,7 @@ import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 
-from rednoise_fun_longwindow import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, get_pitch,get_pitch2, get_pitch_mean, pitch_sqrt, sound_index, get_energy, get_energy_mean
+from rednoise_fun_longwindow import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, get_pitch_wave,get_pitch_samples, get_pitch_mean, pitch_sqrt, sound_index, get_energy, get_energy_mean, wave2stft_long, get_pitch_wave_long, get_pitch_samples_long
 
 
 def wave2pitchmeansqrt(wavefile, target, noise):
@@ -50,23 +50,31 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     mimic_end_match = mimic_start+target_len
     
     if mimic:
-            
+        date = get_date()
+        
         t_stft_sound = t_stft[target_start:target_end]
         t_sound = stft2wave(t_stft_sound,len(ty))
-        t_sound_pitch,t_m = get_pitch2(t_sound,tsr)
+        #save file to check
+        filename_targetsound = './processed_recordings/adjusted_targetsound_{}'.format(date)
+        savewave(filename_targetsound,t_sound,sr)
+        
+        t_sound_pitch,t_m = get_pitch_wave_long(filename_targetsound)
         tp_mean = get_pitch_mean(t_sound_pitch)
         tpm_sqrt = pitch_sqrt(tp_mean)
         
         y_stft_mimic = y_stftmatched[mimic_start:mimic_end_match]
         y_mimic = stft2wave(y_stft_mimic,len(y))
+        #save wave to make sure it worked
+        filename_mimic = './processed_recordings/adjusted_mimic_{}'.format(date)
+        savewave(filename_mimic,y_mimic,sr)
         #have to normalize y_mimic - problem dealt
         #with in the comparison of the sqrt_mean of pitch curves
-        y_mimic_pitch,y_m = get_pitch2(y_mimic,sr)
+        y_mimic_pitch,y_m = get_pitch_wave_long(filename_mimic)
         yp_mean = get_pitch_mean(y_mimic_pitch)
         ypm_sqrt = pitch_sqrt(yp_mean)
     
         
-        n_pitch, n_m = get_pitch(noise)
+        n_pitch, n_m = get_pitch_wave_long(noise)
         np_mean = get_pitch_mean(n_pitch)
         npm_sqrt = pitch_sqrt(np_mean)
         

@@ -33,6 +33,14 @@ def wave2stft(wavefile):
     y, sr = librosa.load(wavefile)
     if len(y)%2 != 0:
         y = y[:-1]
+    stft = librosa.stft(y)
+    stft = np.transpose(stft)
+    return stft, y, sr
+
+def wave2stft_long(wavefile):
+    y, sr = librosa.load(wavefile)
+    if len(y)%2 != 0:
+        y = y[:-1]
     stft = librosa.stft(y,hop_length=int(interval*sr),n_fft=int(0.256*sr))
     stft = np.transpose(stft)
     return stft, y, sr
@@ -58,14 +66,25 @@ def get_energy_mean(energy_list):
     mean = sum(energy_list)/len(energy_list)
     return mean
 
-def get_pitch(wavefile):
+def get_pitch_wave(wavefile):
     y, sr = librosa.load(wavefile)
+    if len(y)%2 != 0:
+        y = y[:-1]
+    pitches,mag = librosa.piptrack(y=y,sr=sr)
+    return pitches,mag
+
+def get_pitch_samples(y,sr):
+    pitches,mag = librosa.piptrack(y=y,sr=sr)
+    return pitches,mag
+
+def get_pitch_wave_long(wavefile):
+    y,sr = librosa.load(wavefile)
     if len(y)%2 != 0:
         y = y[:-1]
     pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr),n_fft=int(0.256*sr))
     return pitches,mag
 
-def get_pitch2(y,sr):
+def get_pitch_samples_long(y,sr):
     pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr),n_fft=int(0.256*sr))
     return pitches,mag
 
