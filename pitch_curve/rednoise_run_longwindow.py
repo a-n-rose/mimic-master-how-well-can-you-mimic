@@ -47,7 +47,8 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     target_len = target_end - target_start
     
     mimic_start,mimic = sound_index(y_energy,start=True,rms_mean_noise = n_energy_mean) 
-    mimic_end_match = mimic_start+target_len
+    mimic_end, mimic = sound_index(y_energy,start=False,rms_mean_noise=n_energy_mean)
+    #mimic_end_match = mimic_start+target_len
     
     if mimic:
         date = get_date()
@@ -62,13 +63,11 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         tp_mean = get_pitch_mean(t_sound_pitch)
         tpm_sqrt = pitch_sqrt(tp_mean)
         
-        y_stft_mimic = y_stftmatched[mimic_start:mimic_end_match]
+        y_stft_mimic = y_stftmatched[mimic_start:mimic_end]
         y_mimic = stft2wave(y_stft_mimic,len(y))
         #save wave to make sure it worked
         filename_mimic = './processed_recordings/adjusted_mimic_{}'.format(date)
         savewave(filename_mimic,y_mimic,sr)
-        #have to normalize y_mimic - problem dealt
-        #with in the comparison of the sqrt_mean of pitch curves
         y_mimic_pitch,y_m = get_pitch_wave_long(filename_mimic)
         yp_mean = get_pitch_mean(y_mimic_pitch)
         ypm_sqrt = pitch_sqrt(yp_mean)
@@ -108,9 +107,10 @@ def get_score(mimic_sound,mimic_noise):
     mimic_sound = mimic_sound[0][1]
     mimic_noise = mimic_noise[0][1]
     score = mimic_sound - mimic_noise
-    score = int(score*100)
-    return score
-
+    if score:
+        score = int(score*100)
+        return score
+    return None
 
 #def hermes_wc(pitch_list, sumpower):
     #if len(pitch_list) != 2:
