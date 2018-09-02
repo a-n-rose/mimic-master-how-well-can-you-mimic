@@ -35,6 +35,15 @@ Your virtual environment should be activated and you can install all the depende
 ```
 pip install __________
 ```
+To deactivate the virtual environment, just type:
+```
+deactivate
+```
+
+## ToDo
+* clip wave files perhaps via the following:
+y, sr = librosa.load(librosa.util.example_audio_file(),duration=5.0)
+* Also make sure ending clicks are not recorded/processed
 
 ## Authors
 
