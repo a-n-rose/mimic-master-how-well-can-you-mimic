@@ -48,7 +48,7 @@ def wave2stft_long(wavefile):
 def stft2wave(stft,len_origsamp):
     sr=22050
     istft = np.transpose(stft.copy())
-    samples = librosa.istft(istft,hop_length=int(interval*sr),length=len_origsamp)
+    samples = librosa.istft(istft,length=len_origsamp)
     return samples
 
 def stft2power(stft_matrix):
