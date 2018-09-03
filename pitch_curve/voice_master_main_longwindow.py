@@ -116,7 +116,7 @@ if __name__ == '__main__':
                             
                             score = get_score(sp2target,sp2noise)
                         
-                            if score > 0:
+                            if score and score > 0:
                                 print("Not bad! You earned {} points.".format(score))
                                 currgame.points += score
                             else:
