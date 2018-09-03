@@ -106,24 +106,31 @@ if __name__ == '__main__':
                         
                         #subtract noise, match target recording
                         # get and compare pitch means (sqrt)
-                        pitches = wave2pitchmeansqrt(usr_recfilename,mim_filename,currgame.noisefile)
+                        #pitches = wave2pitchmeansqrt(usr_recfilename,mim_filename,currgame.noisefile)
                         
-                        if pitches:
-                            pitchsqrt_speech,pitchsqrt_target,pitchsqrt_noise = pitches[0],pitches[1],pitches[2]
-                            #compare similarities
-                            sp2noise = compare_sim(pitchsqrt_speech,pitchsqrt_noise)
-                            sp2target = compare_sim(pitchsqrt_speech,pitchsqrt_target)
+                        #if pitches:
+                            #pitchsqrt_speech,pitchsqrt_target,pitchsqrt_noise = pitches[0],pitches[1],pitches[2]
+                            ##compare similarities
+                            #sp2noise = compare_sim(pitchsqrt_speech,pitchsqrt_noise)
+                            #sp2target = compare_sim(pitchsqrt_speech,pitchsqrt_target)
                             
-                            score = get_score(sp2target,sp2noise)
+                            #score = get_score(sp2target,sp2noise)
                         
-                            if score and score > 0:
-                                print("Not bad! You earned {} points.".format(score))
-                                currgame.points += score
-                            else:
-                                print("You call that a mimic? No points earned. Try again!")
+                            #if score and score > 0:
+                                #print("Not bad! You earned {} points.".format(score))
+                                #currgame.points += score
+                            #else:
+                                #print("You call that a mimic? No points earned. Try again!")
+                        #else:
+                            #print("No response detected. No points earned. Try again!")
                                 
+                        score = wave2pitchmeansqrt(usr_recfilename,mim_filename,currgame.noisefile)
+                        if score and score > 0:
+                            print("Not bad! You earned {} points.".format(score))
+                            currgame.points += score
                         else:
-                            print("No response detected. No points earned. Try again!")
+                            print("You call that a mimic? No points earned. Try again!")
+
                         print("Total points earned: {}".format(currgame.points))
                     else:
                         print("Thanks for playing!")

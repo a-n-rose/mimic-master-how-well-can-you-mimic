@@ -2,15 +2,57 @@ import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 from pydub import AudioSegment
+import time
 
 from rednoise_fun_longwindow import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, get_pitch_wave,get_pitch_samples, get_pitch_mean, pitch_sqrt, sound_index, get_energy, get_energy_mean, wave2stft_long, get_pitch_wave_long, get_pitch_samples_long
 
+def match_len(matrix_list):
+    matrix_lengths = [len(matrix) for matrix in matrix_list]
+    min_index = np.argmin(matrix_lengths)
+    newlen = matrix_lengths[min_index]
+    matched_matrix_list = []
+    for item in matrix_list:
+        item = item[:newlen]
+        matched_matrix_list.append(item)
+    return matched_matrix_list
+
+def hermes_wc(pitch_list, sumpower):
+    if len(pitch_list) != 2:
+        print("2 pitch matrices are necessary to be compared.")
+        return None
+    coefficients = []
+    for i in range(len(sumpower)):
+        nom = sum(sumpower[i]*((pitch_list[0][i]-np.mean(pitch_list[0]))*(pitch_list[1][i]-np.mean(pitch_list[1]))))
+        den = np.sqrt(sum(sumpower[i]*((pitch_list[0][i]-np.mean(pitch_list[0]))**2))*sum(sumpower[i]*((pitch_list[1][i]-np.mean(pitch_list[1]))**2)))
+        coefficients.append(nom/den)
+    return coefficients
     
     
+    
+def long_term_info(y,sr):
+    interval = 0.01
+    window = 0.256
+    start_stft = time.time()
+    stft = librosa.stft(y,hop_length=int(interval*sr),n_fft=int(window*sr))
+    end_stft = time.time()
+    stft = np.transpose(stft)
+    power = np.abs(stft)**2
+    start_pitch = time.time()
+    pitch, mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr),n_fft=int(window*sr))
+    end_pitch = time.time()
+    duration_stft = end_stft - start_stft
+    duration_pitch = end_pitch - start_pitch
+    pitch = np.transpose(pitch)
+    print("Duration of STFT calculation with {} ms intervals and {} ms windows: {} seconds".format(interval*1000,window*1000,duration_stft))
+    print("Duration of pitch calculation with {} ms intervals and {} ms windows: {} seconds".format(interval*1000,window*1000,duration_pitch))
+    return stft,power,pitch
+
+
 def wave2pitchmeansqrt(wavefile, target, noise):
     y_stft, y, sr = wave2stft(wavefile)
     y_power = stft2power(y_stft)
     y_energy = get_energy(y_stft)
+    
     n_stft, ny, nsr = wave2stft(noise)
     n_power = stft2power(n_stft)
     n_energy = get_energy(n_stft)
@@ -20,12 +62,15 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     t_power = stft2power(t_stft)
     t_energy = get_energy(t_stft)
     
+    
     npow_mean = get_mean_bandwidths(n_power)
     #npow_mean = get_rms(n_power)
     npow_var = get_var_bandwidths(n_power)
     
     y_stftred = np.array([rednoise(npow_mean,npow_var,y_power[i],y_stft[i]) for i in range(y_stft.shape[0])])
 
+
+    
     voice_start,voice = sound_index(y_energy,start=True,rms_mean_noise = n_energy_mean)
     if voice:
         #first save file before removing silence
@@ -88,20 +133,15 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         t_stft_sound = t_stft[target_start:target_end]
         t_sound = stft2wave(t_stft_sound,len(ty))
         #only duration of sound present
-        t_duration = get_duration(target_start,target_end,len(t_power),sr)
         #save file to check
         filename_targetsound = './processed_recordings/adjusted_targetsound_{}'.format(date)
         savewave(filename_targetsound+'.wav',t_sound,sr)
         
         #Clip the file (having issues w librosa)
         target_full = AudioSegment.from_wav("{}.wav".format(filename_targetsound))
-        t_stop = t_duration*1000 #get into milliseconds
         target_slice = target_full[:target_len_ms]
         target_slice.export("{}_clipped.wav".format(filename_targetsound), format="WAV")
-        
-        t_sound_pitch,t_m = get_pitch_wave_long(filename_targetsound+'_clipped.wav')
-        tp_mean = get_pitch_mean(t_sound_pitch)
-        tpm_sqrt = pitch_sqrt(tp_mean)
+
         
         y_stft_mimic = y_stftmatched[mimic_start:mimic_end]
         y_mimic = stft2wave(y_stft_mimic,len(y))
@@ -109,35 +149,57 @@ def wave2pitchmeansqrt(wavefile, target, noise):
 
         filename_mimic = './processed_recordings/adjusted_mimic_{}'.format(date)
         savewave(filename_mimic+'.wav',y_mimic,sr)
-        
-        #m_duration = get_duration(mimic_start,mimic_end,len(y_power),sr)
+
         #clip mimic and save 
         mimic_full = AudioSegment.from_wav("{}.wav".format(filename_mimic))
-        #m_stop = m_duration*1000 #get into milliseconds
         mimic_slice = mimic_full[:mimic_len_ms]
         mimic_slice.export("{}_clipped.wav".format(filename_mimic), format="WAV")
-        
-        y_mimic_pitch,y_m = get_pitch_wave_long(filename_mimic+'_clipped.wav')
-        
 
+        #for comparison:
+        #also remove noise from noise file 
+        n_stftred = np.array([rednoise(npow_mean,npow_var,n_power[i],n_stft[i]) for i in range(n_stft.shape[0])])
+        n_sound = stft2wave(n_stftred,len(ny))
+        savewave('backgroundnoise_silence_{}.wav'.format(date),n_sound,sr)
+
+
+        #get pitch, power, and stft from clipped files:
+        #target
+        t_clipped,sr = librosa.load("{}_clipped.wav".format(filename_targetsound))
+        stft_tclipped,power_tclipped,pitch_tclipped = long_term_info(t_clipped,sr)
         
-        yp_mean = get_pitch_mean(y_mimic_pitch)
-        ypm_sqrt = pitch_sqrt(yp_mean)
-    
+        #mimic
+        m_clipped,sr = librosa.load("{}_clipped.wav".format(filename_mimic))
+        stft_mclipped,power_mclipped,pitch_mclipped = long_term_info(m_clipped,sr)
+
+        #noise (over longer windows)
+        n_silent,sr = librosa.load('backgroundnoise_silence_{}.wav'.format(date))
+        stft_nlong, power_nlong, pitch_nlong = long_term_info(n_silent,sr)
+
+        #compare pitch w hermes weighted correlation and time warping 
+        #target and mimic
+        powerlist = match_len([stft_tclipped,stft_mclipped])
+        pitchlist = match_len([pitch_tclipped,pitch_mclipped])
+        sumpower = list(map(sum,powerlist))
+        coefficients = hermes_wc(pitchlist,sumpower)
+        score1 = sum(coefficients)
         
-        n_pitch, n_m = get_pitch_wave_long(noise)
-        np_mean = get_pitch_mean(n_pitch)
-        npm_sqrt = pitch_sqrt(np_mean)
+        #target and noise
+        powerlist2 = match_len([stft_tclipped,stft_nlong])
+        pitchlist2 = match_len([pitch_tclipped,pitch_nlong])
+        sumpower2 = list(map(sum,powerlist2))
+        coefficients2 = hermes_wc(pitchlist2,sumpower2)
+        score2 = sum(coefficients2)
         
-        #to get them on the same scale
-        if np.max(tpm_sqrt) < np.max(ypm_sqrt):
-            mag = np.max(tpm_sqrt)/np.max(ypm_sqrt)
-            ypm_sqrt *= mag
-        for index in range(len(npm_sqrt)):
-            if npm_sqrt[index] > 0.0:
-                npm_sqrt = npm_sqrt[index:]
-                break
-        return (ypm_sqrt, tpm_sqrt, npm_sqrt)
+        if score1 and score2 and score1 > score2:
+            if score1 > 0:
+                score = int(score1*1000)
+            else:
+                print("Hmmmm, nice try but I bet you can do better. No points earned")
+                score = 0
+        else:
+            print("You call that a mimic? No points earned")
+            score = 0
+        return score
     else:
         print("No mimic found.")
         return None
