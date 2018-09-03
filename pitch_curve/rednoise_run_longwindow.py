@@ -1,10 +1,18 @@
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
+from pydub import AudioSegment
 
 from rednoise_fun_longwindow import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, get_pitch_wave,get_pitch_samples, get_pitch_mean, pitch_sqrt, sound_index, get_energy, get_energy_mean, wave2stft_long, get_pitch_wave_long, get_pitch_samples_long
 
-
+def get_duration(start_index, end_index, len_samples,sr):
+    start = start_index/len_samples
+    start_time = (len_samples * start)/sr
+    end = end_index/len_samples
+    end_time = (len_samples*end)/sr
+    return end_time-start_time
+    
+    
 def wave2pitchmeansqrt(wavefile, target, noise):
     y_stft, y, sr = wave2stft(wavefile)
     y_power = stft2power(y_stft)
@@ -27,12 +35,22 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     voice_start,voice = sound_index(y_energy,start=True,rms_mean_noise = n_energy_mean)
     if voice:
         #first save file before removing silence
-        print(voice_start)
-        print(voice_start/len(y_energy))
+        print("Index for when mimic starts: {}".format(voice_start))
+        print("Sound start relative to length of signal: {}".format(voice_start/len(y_energy)))
         start = voice_start/len(y_energy)
         start_time = (len(y)*start)/sr
         print("Start time: {} sec".format(start_time))
         y_stftred = y_stftred[voice_start:]
+        
+        voice_end, voice = sound_index(y_energy,start=False,rms_mean_noise = n_energy_mean)
+        print("Index for when mimic ends: {}".format(voice_end))
+        print("Mimic end relative to length of signal: {}".format(voice_end/len(y_energy)))
+        end = voice_end/len(y_energy)
+        end_time = (len(y)*end)/sr
+        print("End time: {} sec".format(end_time))
+        
+        print("Length of mimic: {} sec".format(end_time-start_time))
+        mimic_len_ms = (end_time-start_time)*1000
         
     else:
         #handle no speech in recording, or too much background noise
@@ -45,9 +63,29 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     target_start,target = sound_index(t_energy,start=True,rms_mean_noise = None)
     target_end,target = sound_index(t_energy,start=False,rms_mean_noise = None)
     target_len = target_end - target_start
+    #find start and end in milliseconds
+    
+    print("Index for when target sound starts: {}".format(target_start))
+    print("Sound start relative to length of signal: {}".format(target_start/len(t_energy)))
+    start = target_start/len(t_energy)
+    start_time = (len(ty)*start)/sr
+    print("Start time: {} sec".format(start_time))
+
+    
+    print("Index for when target sound ends: {}".format(target_end))
+    print("Sound end relative to length of signal: {}".format(target_end/len(t_energy)))
+    end = target_end/len(t_energy)
+    end_time = (len(ty)*end)/sr
+    print("End time: {} sec".format(end_time))
+    
+    print("Length of target sound: {} sec".format(end_time-start_time))
+    target_len_ms = (end_time-start_time)*1000
+    
+    
     
     mimic_start,mimic = sound_index(y_energy,start=True,rms_mean_noise = n_energy_mean) 
     mimic_end, mimic = sound_index(y_energy,start=False,rms_mean_noise=n_energy_mean)
+    mimic_len = mimic_end - mimic_start
     #mimic_end_match = mimic_start+target_len
     
     if mimic:
@@ -55,20 +93,44 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         
         t_stft_sound = t_stft[target_start:target_end]
         t_sound = stft2wave(t_stft_sound,len(ty))
+        #only duration of sound present
+        t_duration = get_duration(target_start,target_end,len(t_power),sr)
         #save file to check
         filename_targetsound = './processed_recordings/adjusted_targetsound_{}'.format(date)
-        savewave(filename_targetsound,t_sound,sr)
+        savewave(filename_targetsound+'.wav',t_sound,sr)
         
-        t_sound_pitch,t_m = get_pitch_wave_long(filename_targetsound)
+        #Clip the file (having issues w librosa)
+        target_full = AudioSegment.from_wav("{}.wav".format(filename_targetsound))
+        t_stop = t_duration*1000 #get into milliseconds
+        target_slice = target_full[:target_len_ms]
+        target_slice.export("{}_clipped.wav".format(filename_targetsound), format="WAV")
+        
+        t_sound_pitch,t_m = get_pitch_wave_long(filename_targetsound+'.wav')
         tp_mean = get_pitch_mean(t_sound_pitch)
         tpm_sqrt = pitch_sqrt(tp_mean)
         
         y_stft_mimic = y_stftmatched[mimic_start:mimic_end]
         y_mimic = stft2wave(y_stft_mimic,len(y))
-        #save wave to make sure it worked
+        #only mimic preset
+
         filename_mimic = './processed_recordings/adjusted_mimic_{}'.format(date)
-        savewave(filename_mimic,y_mimic,sr)
-        y_mimic_pitch,y_m = get_pitch_wave_long(filename_mimic)
+        savewave(filename_mimic+'.wav',y_mimic,sr)
+        y_mimic_pitch,y_m = get_pitch_wave_long(filename_mimic+'.wav')
+        m_duration = get_duration(mimic_start,mimic_end,len(y_power),sr)
+        #clip mimic and save 
+        mimic_full = AudioSegment.from_wav("{}.wav".format(filename_mimic))
+        #m_stop = m_duration*1000 #get into milliseconds
+        m_stop = mimic_end*1000
+        mimic_slice = mimic_full[:mimic_len_ms]
+        mimic_slice.export("{}_clipped.wav".format(filename_mimic), format="WAV")
+        
+        
+        
+        print("Target duration is: {}".format(t_duration))
+        print("Target slice length is: {} ms".format(t_stop))
+        print("Mimic duration is: {}".format(m_duration))
+        print("Mimic slice length is: {} ms".format(m_stop))
+        
         yp_mean = get_pitch_mean(y_mimic_pitch)
         ypm_sqrt = pitch_sqrt(yp_mean)
     
@@ -107,7 +169,9 @@ def get_score(mimic_sound,mimic_noise):
     mimic_sound = mimic_sound[0][1]
     mimic_noise = mimic_noise[0][1]
     score = mimic_sound - mimic_noise
-    if score:
+    if np.isnan(score):
+        pass
+    else:
         score = int(score*100)
         return score
     return None
