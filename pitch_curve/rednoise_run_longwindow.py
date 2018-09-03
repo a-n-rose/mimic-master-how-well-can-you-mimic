@@ -5,12 +5,6 @@ from pydub import AudioSegment
 
 from rednoise_fun_longwindow import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, get_pitch_wave,get_pitch_samples, get_pitch_mean, pitch_sqrt, sound_index, get_energy, get_energy_mean, wave2stft_long, get_pitch_wave_long, get_pitch_samples_long
 
-def get_duration(start_index, end_index, len_samples,sr):
-    start = start_index/len_samples
-    start_time = (len_samples * start)/sr
-    end = end_index/len_samples
-    end_time = (len_samples*end)/sr
-    return end_time-start_time
     
     
 def wave2pitchmeansqrt(wavefile, target, noise):
