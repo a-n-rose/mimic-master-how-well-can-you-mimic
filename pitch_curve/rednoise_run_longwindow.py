@@ -105,7 +105,7 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         target_slice = target_full[:target_len_ms]
         target_slice.export("{}_clipped.wav".format(filename_targetsound), format="WAV")
         
-        t_sound_pitch,t_m = get_pitch_wave_long(filename_targetsound+'.wav')
+        t_sound_pitch,t_m = get_pitch_wave_long(filename_targetsound+'_clipped.wav')
         tp_mean = get_pitch_mean(t_sound_pitch)
         tpm_sqrt = pitch_sqrt(tp_mean)
         
@@ -115,21 +115,17 @@ def wave2pitchmeansqrt(wavefile, target, noise):
 
         filename_mimic = './processed_recordings/adjusted_mimic_{}'.format(date)
         savewave(filename_mimic+'.wav',y_mimic,sr)
-        y_mimic_pitch,y_m = get_pitch_wave_long(filename_mimic+'.wav')
-        m_duration = get_duration(mimic_start,mimic_end,len(y_power),sr)
+        
+        #m_duration = get_duration(mimic_start,mimic_end,len(y_power),sr)
         #clip mimic and save 
         mimic_full = AudioSegment.from_wav("{}.wav".format(filename_mimic))
         #m_stop = m_duration*1000 #get into milliseconds
-        m_stop = mimic_end*1000
         mimic_slice = mimic_full[:mimic_len_ms]
         mimic_slice.export("{}_clipped.wav".format(filename_mimic), format="WAV")
         
+        y_mimic_pitch,y_m = get_pitch_wave_long(filename_mimic+'_clipped.wav')
         
-        
-        print("Target duration is: {}".format(t_duration))
-        print("Target slice length is: {} ms".format(t_stop))
-        print("Mimic duration is: {}".format(m_duration))
-        print("Mimic slice length is: {} ms".format(m_stop))
+
         
         yp_mean = get_pitch_mean(y_mimic_pitch)
         ypm_sqrt = pitch_sqrt(yp_mean)
