@@ -177,18 +177,19 @@ def wave2pitchmeansqrt(wavefile, target, noise):
 
         #compare pitch w hermes weighted correlation and time warping 
         #target and mimic
-        powerlist = match_len([stft_tclipped,stft_mclipped])
+        powerlist = match_len([power_tclipped,power_mclipped])
         pitchlist = match_len([pitch_tclipped,pitch_mclipped])
         sumpower = list(map(sum,powerlist))
         coefficients = hermes_wc(pitchlist,sumpower)
         score1 = sum(coefficients)
         
         #target and noise
-        powerlist2 = match_len([stft_tclipped,stft_nlong])
+        powerlist2 = match_len([power_tclipped,power_nlong])
         pitchlist2 = match_len([pitch_tclipped,pitch_nlong])
         sumpower2 = list(map(sum,powerlist2))
         coefficients2 = hermes_wc(pitchlist2,sumpower2)
         score2 = sum(coefficients2)
+        
         
         if score1 and score2 and score1 > score2:
             if score1 > 0:
@@ -196,8 +197,9 @@ def wave2pitchmeansqrt(wavefile, target, noise):
             else:
                 print("Hmmmm, nice try but I bet you can do better. No points earned")
                 score = 0
+            print("Similarity of your mimic to the sound: {}".format(score1))
+            print("Similarity of your background noise to the sound: {}".format(score2))
         else:
-            print("You call that a mimic? No points earned")
             score = 0
         return score
     else:
