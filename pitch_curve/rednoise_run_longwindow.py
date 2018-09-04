@@ -81,11 +81,12 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     npow_var = get_var_bandwidths(n_power)
 
     print("Shape of n_energy: {}".format(len(n_energy)))
-    print("n_energy:\n{}".format(n_energy))
+    #print("n_energy:\n{}".format(n_energy))
     print("n_energy_mean: {}".format(n_energy_mean))
     print("n_energy_var: {}".format(n_energy_var))
     #print("Length of n_energy_var: {}".format(len(n_energy_var)))
-
+    print("y_energy_var: {}".format(np.var(y_energy)))
+    
     #get target stft, samples, sampling rate
     t_stft, ty, tsr = wave2stft(target)
     t_power = stft2power(t_stft)

@@ -137,10 +137,10 @@ def matchvol(target_powerspec, speech_powerspec, speech_stft):
 
 def suspended_energy(rms_speech,row,rms_mean_noise,rms_var_noise,start):
     if start == True:
-        if rms_speech[row+1] and rms_speech[row+2] and rms_speech[row+3] > rms_mean_noise + rms_var_noise:
+        if rms_speech[row+1] and rms_speech[row+2] and rms_speech[row+3] > rms_mean_noise + rms_var_noise/2:
             return True
     else:
-        if rms_speech[row-1] and rms_speech[row-2] and rms_speech[row-3] > rms_mean_noise + rms_var_noise:
+        if rms_speech[row-1] and rms_speech[row-2] and rms_speech[row-3] > rms_mean_noise + rms_var_noise/2:
             return True
 
 
