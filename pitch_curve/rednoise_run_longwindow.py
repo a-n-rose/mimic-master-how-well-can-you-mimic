@@ -1,7 +1,6 @@
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
-from pydub import AudioSegment
 import time
 
 from rednoise_fun_longwindow import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, get_pitch_wave,get_pitch_samples, get_pitch_mean, pitch_sqrt, sound_index, get_energy, get_energy_mean, wave2stft_long, get_pitch_wave_long, get_pitch_samples_long
@@ -155,17 +154,6 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         #save these to check
         savewave('./processed_recordings/mimiconly_{}.wav'.format(date),mimic_only_samps,sr)
         savewave('./processed_recordings/targetonly_{}.wav'.format(date),target_only_samps,sr)
-
-
-        ##try with pydub: #works just as well as with librosa
-        ##clip mimic and save 
-        #mimic_full = AudioSegment.from_wav("{}.wav".format(filename_mimic))
-        #mimic_slice = mimic_full[:mimic_len_ms]
-        #mimic_slice.export("./processed_recordings/mimiconly_pydub_{}.wav".format(date), format="WAV")
-
-        #target_full = AudioSegment.from_wav("{}.wav".format(filename_targetsound))
-        #target_slice = target_full[:target_len_ms]
-        #target_slice.export("./processed_recordings/targetonly_pydub_{}.wav".format(date), format="WAV")
 
         
         #get pitch, power, and stft from clipped files:
