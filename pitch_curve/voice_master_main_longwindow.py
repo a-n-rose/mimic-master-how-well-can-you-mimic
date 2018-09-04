@@ -7,7 +7,7 @@ Created on Tue May 15 22:22:15 2018
 """
 import numpy as np
 
-from rednoise_run_longwindow import wave2pitchmeansqrt, compare_sim, get_score
+from rednoise_run_longwindow import wave2pitchmeansqrt
 from voice_master import Mimic_Game
 import os
 
