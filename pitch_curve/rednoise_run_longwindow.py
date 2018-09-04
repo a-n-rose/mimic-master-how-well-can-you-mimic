@@ -153,28 +153,28 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         mimic_only_samps, sr = librosa.load('{}.wav'.format(filename_mimic),duration=mimic_len_ms/1000)
         target_only_samps, sr = librosa.load('{}.wav'.format(filename_targetsound),duration=target_len_ms/1000)
         #save these to check
-        savewave('./processed_recordings/mimiconly_librosa_{}.wav'.format(date),mimic_only_samps,sr)
-        savewave('./processed_recordings/targetonly_librosa_{}.wav'.format(date),target_only_samps,sr)
+        savewave('./processed_recordings/mimiconly_{}.wav'.format(date),mimic_only_samps,sr)
+        savewave('./processed_recordings/targetonly_{}.wav'.format(date),target_only_samps,sr)
 
-        #try with pydub:
-        
-        #clip mimic and save 
-        mimic_full = AudioSegment.from_wav("{}.wav".format(filename_mimic))
-        mimic_slice = mimic_full[:mimic_len_ms]
-        mimic_slice.export("./processed_recordings/mimiconly_pydub_{}.wav".format(date), format="WAV")
 
-        target_full = AudioSegment.from_wav("{}.wav".format(filename_targetsound))
-        target_slice = target_full[:target_len_ms]
-        target_slice.export("./processed_recordings/targetonly_pydub_{}.wav".format(date), format="WAV")
+        ##try with pydub: #works just as well as with librosa
+        ##clip mimic and save 
+        #mimic_full = AudioSegment.from_wav("{}.wav".format(filename_mimic))
+        #mimic_slice = mimic_full[:mimic_len_ms]
+        #mimic_slice.export("./processed_recordings/mimiconly_pydub_{}.wav".format(date), format="WAV")
+
+        #target_full = AudioSegment.from_wav("{}.wav".format(filename_targetsound))
+        #target_slice = target_full[:target_len_ms]
+        #target_slice.export("./processed_recordings/targetonly_pydub_{}.wav".format(date), format="WAV")
 
         
         #get pitch, power, and stft from clipped files:
 
         #mimic
-        m_clipped,sr = librosa.load("./processed_recordings/mimiconly_librosa_{}.wav".format(date))
+        m_clipped,sr = librosa.load("./processed_recordings/mimiconly_{}.wav".format(date))
         stft_mclipped,power_mclipped,pitch_mclipped = long_term_info(m_clipped,sr)
         #target
-        t_clipped,sr = librosa.load("./processed_recordings/targetonly_librosa_{}.wav".format(date))
+        t_clipped,sr = librosa.load("./processed_recordings/targetonly_{}.wav".format(date))
         stft_tclipped,power_tclipped,pitch_tclipped = long_term_info(t_clipped,sr)
         #noise (over longer windows)
         n_silent,sr = librosa.load('backgroundnoise_silence_{}.wav'.format(date))
@@ -200,8 +200,8 @@ def wave2pitchmeansqrt(wavefile, target, noise):
             if score_mimic > 0:
                 score = int(score_mimic*1000)
             else:
-                print("Hmmmm, nice try but I bet you can do better. No points earned")
-                score = 0
+                print("Hmmmm, nice try but I bet you can do better. You get 1 point for effort.")
+                score = 1
             print("Similarity of your mimic to the sound: {}".format(score_mimic))
             print("Similarity of your background noise to the sound: {}".format(score_noise))
         else:
