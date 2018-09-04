@@ -185,11 +185,14 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         
         
         if score_mimic and score_noise and score_mimic > score_noise:
-            if score_mimic > 0:
-                score = int(score_mimic*1000)
-            else:
-                print("Hmmmm, nice try but I bet you can do better. You get 1 point for effort.")
-                score = 1
+            diff = score_mimic - score_noise
+            score = int(abs(diff) * 100)
+            
+            #if score_mimic > 0:
+                #score = int(score_mimic*1000)
+            #else:
+                #print("Hmmmm, nice try but I bet you can do better. You get 1 point for effort.")
+                #score = 1
             print("Similarity of your mimic to the sound: {}".format(score_mimic))
             print("Similarity of your background noise to the sound: {}".format(score_noise))
         else:
