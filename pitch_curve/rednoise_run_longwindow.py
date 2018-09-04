@@ -76,10 +76,15 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     n_power = stft2power(n_stft)
     n_energy = get_energy(n_stft)
     n_energy_mean = get_energy_mean(n_energy)
+    n_energy_var = np.var(n_energy)
     npow_mean = get_mean_bandwidths(n_power)
     npow_var = get_var_bandwidths(n_power)
 
-
+    print("Shape of n_energy: {}".format(len(n_energy)))
+    print("n_energy:\n{}".format(n_energy))
+    print("n_energy_mean: {}".format(n_energy_mean))
+    print("n_energy_var: {}".format(n_energy_var))
+    #print("Length of n_energy_var: {}".format(len(n_energy_var)))
 
     #get target stft, samples, sampling rate
     t_stft, ty, tsr = wave2stft(target)
@@ -90,7 +95,7 @@ def wave2pitchmeansqrt(wavefile, target, noise):
 
     
     y_stftred = np.array([rednoise(npow_mean,npow_var,y_power[i],y_stft[i]) for i in range(y_stft.shape[0])])
-    
+    y_rn_energy = get_energy(y_stftred)
     y_nr = stft2wave(y_stftred,len(y))
 
     #save reduced noise mimic to see what's going on:
@@ -114,18 +119,18 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     
     #noise reference values - change these to change how mimic start/end search uses noise (with reduced noise noise signal or original noise signal)
     rms_mean_noise = n_energy_mean #options: n_energy_rn_mean   n_energy_mean  None
-    
+    rms_var_noise = n_energy_var  #options: n_energy_var   None
     
 
     
-    voice_start,voice = sound_index(y_energy,start=True,rms_mean_noise = rms_mean_noise)
+    voice_start,voice = sound_index(y_energy,start=True,rms_mean_noise = rms_mean_noise,rms_var_noise = rms_var_noise)
     if voice:
         #get start and/or end indices of mimic and target
         #end index of mimic
         voice_end, voice = sound_index(y_energy,start=False,rms_mean_noise = rms_mean_noise)
         #start and end index of target
-        target_start,target = sound_index(t_energy,start=True,rms_mean_noise = None)
-        target_end,target = sound_index(t_energy,start=False,rms_mean_noise = None)
+        target_start,target = sound_index(t_energy,start=True,rms_mean_noise = None,rms_var_noise=None)
+        target_end,target = sound_index(t_energy,start=False,rms_mean_noise = None,rms_var_noise=None)
         
         y_stftred, mimic_len_ms = clip_around_sounds("MIMIC",y_stftred,len(y),len(y_power),voice_start,voice_end,sr)
         t_stft_sound, target_len_ms = clip_around_sounds("TARGET",t_stft,len(ty),len(t_power),target_start,target_end,sr)

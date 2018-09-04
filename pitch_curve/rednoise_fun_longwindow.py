@@ -135,18 +135,20 @@ def matchvol(target_powerspec, speech_powerspec, speech_stft):
     return stft
 
 
-def suspended_energy(rms_speech,row,rms_mean_noise,start):
+def suspended_energy(rms_speech,row,rms_mean_noise,rms_var_noise,start):
     if start == True:
-        if rms_speech[row+1] and rms_speech[row+2] > rms_mean_noise:
+        if rms_speech[row+1] and rms_speech[row+2] and rms_speech[row+3] > rms_mean_noise + rms_var_noise:
             return True
     else:
-        if rms_speech[row-1] and rms_speech[row-2] > rms_mean_noise:
+        if rms_speech[row-1] and rms_speech[row-2] and rms_speech[row-3] > rms_mean_noise + rms_var_noise:
             return True
 
 
-def sound_index(rms_speech, start = True, rms_mean_noise = None):
+def sound_index(rms_speech, start = True, rms_mean_noise = None, rms_var_noise = None):
     if rms_mean_noise == None:
         rms_mean_noise = 1
+    if rms_var_noise == None:
+        rms_var_noise = 0
     if start == True:
         side = 1
         beg = 0
@@ -157,7 +159,7 @@ def sound_index(rms_speech, start = True, rms_mean_noise = None):
         end = -1
     for row in range(beg,end,side):
         if rms_speech[row] > rms_mean_noise:
-            if suspended_energy(rms_speech,row,rms_mean_noise,start=start):
+            if suspended_energy(rms_speech,row,rms_mean_noise,rms_var_noise,start=start):
                 if start==True:
                     #to catch plosive sounds
                     while row >= 0:
