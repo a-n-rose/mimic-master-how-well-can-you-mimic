@@ -1,7 +1,7 @@
  
 # Mimic Master
 
-A game using pitch analysis to compare target sounds and mimicked sounds.
+A game using pitch analysis to compare target sounds and mimicked sounds. Note: the files appended with '_long' are versions implementing the game with longer proccessing windows (20 - 256ms), which allows 'long-term' pitch information to be included. Those without include solely local pitch information (0ms windows). For more on this, you can read my <a href="https://a-n-rose.github.io/2018/08/29/comparing-prosody.html">blogpost<a/>.
 
 ## Getting Started
 
