@@ -115,20 +115,20 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     n_energy_rn = get_energy(n_stftred)
     n_energy_rn_mean = get_energy_mean(n_energy_rn)
     npow_rn_mean = get_mean_bandwidths(n_power_rn)
-    npow_rn_var = get_var_bandwidths(n_power_rn)
+    n_energy_rn_var = np.var(n_energy_rn)
 
     
     #noise reference values - change these to change how mimic start/end search uses noise (with reduced noise noise signal or original noise signal)
-    rms_mean_noise = n_energy_mean #options: n_energy_rn_mean   n_energy_mean  None
-    rms_var_noise = n_energy_var  #options: n_energy_var   None
-    
+    rms_mean_noise = n_energy_rn_mean #options: n_energy_rn_mean   n_energy_mean  None
+    rms_var_noise = n_energy_rn_var  #options: n_energy_var   None
+    rms_mimic = y_rn_energy  #options y_rn_energy   y_energy
 
     
-    voice_start,voice = sound_index(y_energy,start=True,rms_mean_noise = rms_mean_noise,rms_var_noise = rms_var_noise)
+    voice_start,voice = sound_index(rms_mimic,start=True,rms_mean_noise = rms_mean_noise,rms_var_noise = rms_var_noise)
     if voice:
         #get start and/or end indices of mimic and target
         #end index of mimic
-        voice_end, voice = sound_index(y_energy,start=False,rms_mean_noise = rms_mean_noise)
+        voice_end, voice = sound_index(rms_mimic,start=False,rms_mean_noise = rms_mean_noise,rms_var_noise = rms_var_noise)
         #start and end index of target
         target_start,target = sound_index(t_energy,start=True,rms_mean_noise = None,rms_var_noise=None)
         target_end,target = sound_index(t_energy,start=False,rms_mean_noise = None,rms_var_noise=None)
