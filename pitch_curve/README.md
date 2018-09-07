@@ -41,9 +41,7 @@ deactivate
 ```
 
 ## ToDo
-* clip wave files perhaps via the following:
-y, sr = librosa.load(librosa.util.example_audio_file(),duration=5.0)
-* Also make sure ending clicks are not recorded/processed
+* improve on the voice activity detection functions.
 
 ## Authors
 
