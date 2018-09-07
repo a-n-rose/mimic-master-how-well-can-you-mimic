@@ -15,50 +15,19 @@ import logging
 import logging.handlers
 logger = logging.getLogger(__name__)
 
-#import shutil
+from my_logger import start_logging, get_date
+logger = logging.getLogger(__name__)
 
+#for logging:
+script_purpose = 'MFCC_extraction_' #will name logfile 
+current_filename = os.path.basename(__file__)
+session_name = get_date() #make sure this session has a unique identifier - link to model name and logging information
 
 if __name__ == '__main__':
     try:
-        
-        #default format: severity:logger name:message
-        #documentation: https://docs.python.org/3.6/library/logging.html#logrecord-attributes 
-        log_formatterstr='%(levelname)s , %(asctime)s, "%(message)s", %(name)s , %(threadName)s'
-        log_formatter = logging.Formatter(log_formatterstr)
-        logging.root.setLevel(logging.DEBUG)
-        #logging.basicConfig(format=log_formatterstr,
-        #                    filename='/tmp/tradinglog.csv',
-        #                    level=logging.INFO)
-        #for logging infos:
-        file_handler_info = logging.handlers.RotatingFileHandler('MM_loginfo.csv',
-                                                                  mode='a',
-                                                                  maxBytes=1.0 * 1e6,
-                                                                  backupCount=200)
-        #file_handler_debug = logging.FileHandler('/tmp/tradinglogdbugger.csv', mode='w')
-        file_handler_info.setFormatter(log_formatter)
-        file_handler_info.setLevel(logging.INFO)
-        logging.root.addHandler(file_handler_info)
-        
-        
-        #https://docs.python.org/3/library/logging.handlers.html
-        #for logging errors:
-        file_handler_error = logging.handlers.RotatingFileHandler('MM_logerror.csv', mode='a',
-                                                                  maxBytes=1.0 * 1e6,
-                                                                  backupCount=200)
-        file_handler_error.setFormatter(log_formatter)
-        file_handler_error.setLevel(logging.ERROR)
-        logging.root.addHandler(file_handler_error)
-        
-        #for logging infos:
-        file_handler_debug = logging.handlers.RotatingFileHandler('MM_logdbugger.csv',
-                                                                  mode='a',
-                                                                  maxBytes=2.0 * 1e6,
-                                                                  backupCount=200)
-        #file_handler_debug = logging.FileHandler('/tmp/tradinglogdbugger.csv', mode='w')
-        file_handler_debug.setFormatter(log_formatter)
-        file_handler_debug.setLevel(logging.DEBUG)
-        logging.root.addHandler(file_handler_debug)
-
+        start_logging(script_purpose)
+        logging.info("Running script: {}".format(current_filename))
+        logging.info("Session: {}".format(session_name))
 
         currgame = Mimic_Game()
         #username = currgame.start_game('start', username = True)
@@ -78,8 +47,6 @@ if __name__ == '__main__':
             currgame.close_game()
         if username:
             sec = 5
-    #        print("\n\nDuring the next step, we need you stay as quiet as you can - we need to measure the background noise for {} seconds.\n\n".format(sec))
-
             print("\nThis next step will take just {} seconds\n".format(sec))
             test_mic = currgame.start_game('test your mic')
             if test_mic:
@@ -103,27 +70,7 @@ if __name__ == '__main__':
                         time_str = currgame.get_date()
                         usr_recfilename = directory_user+username+'_'+time_str+'.wav'
                         currgame.save_rec(usr_recfilename,rep_mim,fs=22050)
-                        
-                        #subtract noise, match target recording
-                        # get and compare pitch means (sqrt)
-                        #pitches = wave2pitchmeansqrt(usr_recfilename,mim_filename,currgame.noisefile)
-                        
-                        #if pitches:
-                            #pitchsqrt_speech,pitchsqrt_target,pitchsqrt_noise = pitches[0],pitches[1],pitches[2]
-                            ##compare similarities
-                            #sp2noise = compare_sim(pitchsqrt_speech,pitchsqrt_noise)
-                            #sp2target = compare_sim(pitchsqrt_speech,pitchsqrt_target)
-                            
-                            #score = get_score(sp2target,sp2noise)
-                        
-                            #if score and score > 0:
-                                #print("Not bad! You earned {} points.".format(score))
-                                #currgame.points += score
-                            #else:
-                                #print("You call that a mimic? No points earned. Try again!")
-                        #else:
-                            #print("No response detected. No points earned. Try again!")
-                                
+
                         score = wave2pitchmeansqrt(usr_recfilename,mim_filename,currgame.noisefile)
                         if score and score > 0:
                             print("Not bad! You earned {} points.".format(score))
