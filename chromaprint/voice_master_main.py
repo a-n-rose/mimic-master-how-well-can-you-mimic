@@ -11,11 +11,21 @@ from process_speech import wave2fingerprint
 from voice_master import Mimic_Game
 import os
 
-#import shutil
+from my_logger import start_logging, get_date
+logger = logging.getLogger(__name__)
+#for logging:
+script_purpose = 'trainLanguageClassifer' #will name logfile 
+current_filename = os.path.basename(__file__)
+session_name = get_date() #make sure this session has a unique identifier - link to model name and logging information
+
   
 
 if __name__ == '__main__':
     try:
+        start_logging(script_purpose)
+        logging.info("Running script: {}".format(current_filename))
+        logging.info("Session: {}".format(session_name))
+        
         currgame = Mimic_Game()
         #username = currgame.start_game('start', username = True)
         username = 'Aislyn'
@@ -87,6 +97,5 @@ if __name__ == '__main__':
                     print("\nCongratulations!!! You're a MIMIC MASTER!!")
                 currgame.cont_game = False
                 currgame.close_game()
-                #shutil.rmtree(directory_user)
     except Exception as e:
         print(e)
