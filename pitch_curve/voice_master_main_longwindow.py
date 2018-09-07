@@ -11,10 +11,6 @@ from rednoise_run_longwindow import wave2pitchmeansqrt
 from voice_master import Mimic_Game
 import os
 
-import logging
-import logging.handlers
-logger = logging.getLogger(__name__)
-
 from my_logger import start_logging, get_date
 logger = logging.getLogger(__name__)
 
@@ -89,5 +85,4 @@ if __name__ == '__main__':
                 currgame.close_game()
                 #shutil.rmtree(directory_user)
     except Exception as e:
-        print("Error occurred: {}".format(e))
         logging.exception("Error occurred: %s" % e)
