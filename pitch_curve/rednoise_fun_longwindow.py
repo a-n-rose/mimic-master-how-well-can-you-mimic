@@ -135,31 +135,27 @@ def matchvol(target_powerspec, speech_powerspec, speech_stft):
     return stft
 
 
-def suspended_energy(rms_speech,row,rms_mean_noise,rms_var_noise,start):
+def suspended_energy(speech_energy,row,speech_energy_mean,start):
     if start == True:
-        if rms_speech[row+1] and rms_speech[row+2] and rms_speech[row+3] > rms_mean_noise + rms_var_noise/2:
+        if speech_energy[row+1] and speech_energy[row+2] and speech_energy[row+3] > speech_energy_mean:
             return True
     else:
-        if rms_speech[row-1] and rms_speech[row-2] and rms_speech[row-3] > rms_mean_noise + rms_var_noise/2:
+        if speech_energy[row-1] and speech_energy[row-2] and speech_energy[row-3] > speech_energy_mean:
             return True
 
 
-def sound_index(rms_speech, start = True, rms_mean_noise = None, rms_var_noise = None):
-    if rms_mean_noise == None:
-        rms_mean_noise = 1
-    if rms_var_noise == None:
-        rms_var_noise = 0
+def sound_index(speech_energy, start = True, speech_energy_mean):
     if start == True:
         side = 1
         beg = 0
-        end = len(rms_speech)
+        end = len(speech_energy)
     else:
         side = -1
-        beg = len(rms_speech)-1
+        beg = len(speech_energy)-1
         end = -1
     for row in range(beg,end,side):
-        if rms_speech[row] > rms_mean_noise:
-            if suspended_energy(rms_speech,row,rms_mean_noise,rms_var_noise,start=start):
+        if speech_energy[row] > speech_energy_mean:
+            if suspended_energy(speech_energy,row,speech_energy_mean,start=start):
                 if start==True:
                     #to catch plosive sounds
                     while row >= 0:
@@ -171,11 +167,11 @@ def sound_index(rms_speech, start = True, rms_mean_noise = None, rms_var_noise =
                     return row,True
                 else:
                     #to catch quiet consonant endings
-                    while row <= len(rms_speech):
+                    while row <= len(speech_energy):
                         row += 1
                         row += 1
-                        if row > len(rms_speech):
-                            row = len(rms_speech)
+                        if row > len(speech_energy):
+                            row = len(speech_energy)
                         break
                     return row,True
     else:
