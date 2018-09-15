@@ -51,7 +51,7 @@ def stft2wave(stft,len_origsamp):
 def stft2power(stft_matrix):
     stft = stft_matrix.copy()
     power = np.abs(stft)**2
-    return(power)
+    return power
 
 def get_energy(stft_matrix):
     #stft.shape[1] == bandwidths/frequencies
@@ -59,8 +59,17 @@ def get_energy(stft_matrix):
     rms_list = [np.sqrt(sum(np.abs(stft_matrix[row])**2)/stft_matrix.shape[1]) for row in range(len(stft_matrix))]
     return rms_list
 
+def get_energy2(stft_matrix):
+    #stft.shape[0] pertains to the time domain
+    energy_list = [sum(np.abs(stft_matrix[row])**2)/stft_matrix.shape[1] for row in range(len(stft_matrix))]
+    return energy_list
+
 def get_energy_mean(energy_list):
     mean = sum(energy_list)/len(energy_list)
+    return mean
+
+def get_power_mean(power):
+    mean = sum(power)/len(power)
     return mean
 
 def get_pitch_wave(wavefile):
@@ -133,12 +142,15 @@ def matchvol(target_powerspec, speech_powerspec, speech_stft):
 
 
 def suspended_energy(speech_energy,row,speech_energy_mean,start):
-    if start == True:
-        if speech_energy[row+1] and speech_energy[row+2] and speech_energy[row+3] > speech_energy_mean:
-            return True
-    else:
-        if speech_energy[row-1] and speech_energy[row-2] and speech_energy[row-3] > speech_energy_mean:
-            return True
+    try:
+        if start == True:
+            if speech_energy[row+1] and speech_energy[row+2] and speech_energy[row+3] and speech_energy[row+4]> speech_energy_mean: #
+                return True
+        else:
+            if speech_energy[row-1] and speech_energy[row-2] and speech_energy[row-3] and speech_energy[row-4]> speech_energy_mean: #
+                return True
+    except IndexError as ie:
+        return False
 
 
 def sound_index(speech_energy, speech_energy_mean,start = True,):
@@ -151,6 +163,8 @@ def sound_index(speech_energy, speech_energy_mean,start = True,):
         beg = len(speech_energy)-1
         end = -1
     for row in range(beg,end,side):
+        print("row: {}".format(speech_energy[row]))
+        print("mean: {}".format(speech_energy_mean))
         if speech_energy[row] > speech_energy_mean:
             if suspended_energy(speech_energy,row,speech_energy_mean,start=start):
                 if start==True:
