@@ -11,11 +11,12 @@ from rednoise_run_longwindow import wave2pitchmeansqrt
 from voice_master import Mimic_Game
 import os
 
+import logging.handlers
 from my_logger import start_logging, get_date
 logger = logging.getLogger(__name__)
 
 #for logging:
-script_purpose = 'MFCC_extraction_' #will name logfile 
+script_purpose = 'mimic_master_game' #will name logfile 
 current_filename = os.path.basename(__file__)
 session_name = get_date() #make sure this session has a unique identifier - link to model name and logging information
 
