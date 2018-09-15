@@ -53,13 +53,13 @@ def stft2power(stft_matrix):
     power = np.abs(stft)**2
     return power
 
-def get_energy(stft_matrix):
+def get_energy_rms(stft_matrix):
     #stft.shape[1] == bandwidths/frequencies
     #stft.shape[0] pertains to the time domain
     rms_list = [np.sqrt(sum(np.abs(stft_matrix[row])**2)/stft_matrix.shape[1]) for row in range(len(stft_matrix))]
     return rms_list
 
-def get_energy2(stft_matrix):
+def get_energy_ms(stft_matrix):
     #stft.shape[0] pertains to the time domain
     energy_list = [sum(np.abs(stft_matrix[row])**2)/stft_matrix.shape[1] for row in range(len(stft_matrix))]
     return energy_list
