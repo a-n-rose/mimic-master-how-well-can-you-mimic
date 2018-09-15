@@ -126,14 +126,14 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     rms_mimic = y_energy  #options y_rn_energy   y_energy
 
     
-    voice_start,voice = sound_index(rms_mimic,start=True,y_energy_mean)
+    voice_start,voice = sound_index(rms_mimic,y_energy_mean,start=True,)
     if voice:
         #get start and/or end indices of mimic and target
         #end index of mimic
-        voice_end, voice = sound_index(rms_mimic,start=False,y_energy_mean)
+        voice_end, voice = sound_index(rms_mimic,y_energy_mean,start=False)
         #start and end index of target
-        target_start,target = sound_index(t_energy,start=True,t_energy_mean)
-        target_end,target = sound_index(t_energy,start=False,t_energy_mean)
+        target_start,target = sound_index(t_energy,t_energy_mean,start=True)
+        target_end,target = sound_index(t_energy,t_energy_mean,start=False)
         
         y_stftred, mimic_len_ms = clip_around_sounds("MIMIC",y_stftred,len(y),len(y_power),voice_start,voice_end,sr)
         t_stft_sound, target_len_ms = clip_around_sounds("TARGET",t_stft,len(ty),len(t_power),target_start,target_end,sr)

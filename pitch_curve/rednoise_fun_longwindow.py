@@ -144,7 +144,7 @@ def suspended_energy(speech_energy,row,speech_energy_mean,start):
             return True
 
 
-def sound_index(speech_energy, start = True, speech_energy_mean):
+def sound_index(speech_energy, speech_energy_mean,start = True,):
     if start == True:
         side = 1
         beg = 0
