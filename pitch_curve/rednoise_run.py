@@ -17,7 +17,6 @@ def match_len(matrix_list):
 
 def hermes_wc(pitch_list, sumpower):
     if len(pitch_list) != 2:
-        print("2 pitch matrices are necessary to be compared.")
         return None
     coefficients = []
     for i in range(len(sumpower)):
@@ -42,21 +41,15 @@ def long_term_info(y,sr):
     duration_stft = end_stft - start_stft
     duration_pitch = end_pitch - start_pitch
     pitch = np.transpose(pitch)
-    print("Duration of STFT calculation with {} ms intervals and {} ms windows: {} seconds".format(interval*1000,window*1000,duration_stft))
-    print("Duration of pitch calculation with {} ms intervals and {} ms windows: {} seconds".format(interval*1000,window*1000,duration_pitch))
     return stft,power,pitch
 
 def clip_around_sounds(sound_type,stft,samples_length,energy_length,start_index,end_index,sr):
-    print("\n\nIndex for when {} starts: {}\nIndex for when sound ends: {}".format(sound_type,start_index,end_index))
-    print("{} start relative to length of energy spectrum: {}\n{} end relative to length of signal: {}".format(sound_type,start_index/energy_length,sound_type,end_index/energy_length))
     start_percentile = start_index/energy_length
     start_time = (samples_length*start_percentile)/sr
     end_percentile = end_index/energy_length
     end_time = (samples_length*end_percentile)/sr
     end = end_index/energy_length
     end_time = (samples_length*end)/sr
-    print("Start time: {} sec\nEnd time: {} sec".format(start_time,end_time))
-    print("Length of {}: {} sec\n\n".format(sound_type,end_time-start_time))
     len_ms = (end_time-start_time)*1000 
     stft_start = stft[start_index:end_index]
 
@@ -84,13 +77,6 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     npow_mean = get_mean_bandwidths(n_power)
     npow_var = get_var_bandwidths(n_power)
 
-    print("Shape of n_energy: {}".format(len(n_energy)))
-    #print("n_energy:\n{}".format(n_energy))
-    print("n_energy_mean: {}".format(n_energy_mean))
-    print("n_energy_var: {}".format(n_energy_var))
-    #print("Length of n_energy_var: {}".format(len(n_energy_var)))
-    print("y_energy_var: {}".format(np.var(y_energy)))
-    
     #get target stft, samples, sampling rate
     t_stft, ty, tsr = wave2stft(target)
     t_power = stft2power(t_stft)
@@ -108,7 +94,6 @@ def wave2pitchmeansqrt(wavefile, target, noise):
 
     #save reduced noise mimic to see what's going on:
     savewave('{}_reducednoise.wav'.format(wavefile),y_nr, sr)
-    print("Reduced noise mimic saved")
 
     
     #reduce the noise in noise signal, for new reference for "noise" to find when mimic starts and ends
@@ -145,7 +130,6 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         y_stftred, mimic_len_ms = clip_around_sounds("MIMIC",y_stftred,len(y),len(y_power),voice_start,voice_end,sr)
         t_stft_sound, target_len_ms = clip_around_sounds("TARGET",t_stft,len(ty),len(t_power),target_start,target_end,sr)
         
-        print('Now matching volume to target recording.')
         y_stftmatched = matchvol(t_power,y_power,y_stftred)
         
         #save waves to see that everything worked:
@@ -202,12 +186,6 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         if score_mimic and score_noise and score_mimic > score_noise:
             diff = score_mimic - score_noise
             score = int(abs(diff) * 100)
-            
-            #if score_mimic > 0:
-                #score = int(score_mimic*1000)
-            #else:
-                #print("Hmmmm, nice try but I bet you can do better. You get 1 point for effort.")
-                #score = 1
             print("Similarity of your mimic to the sound: {}".format(score_mimic))
             print("Similarity of your background noise to the sound: {}".format(score_noise))
         else:
