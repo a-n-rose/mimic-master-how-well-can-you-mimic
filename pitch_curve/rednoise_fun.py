@@ -163,8 +163,6 @@ def sound_index(speech_energy, speech_energy_mean,start = True,):
         beg = len(speech_energy)-1
         end = -1
     for row in range(beg,end,side):
-        print("row: {}".format(speech_energy[row]))
-        print("mean: {}".format(speech_energy_mean))
         if speech_energy[row] > speech_energy_mean:
             if suspended_energy(speech_energy,row,speech_energy_mean,start=start):
                 if start==True:
