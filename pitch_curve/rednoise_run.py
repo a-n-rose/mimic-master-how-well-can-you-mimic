@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-from rednoise_fun import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, get_pitch_wave,get_pitch_samples, get_pitch_mean, pitch_sqrt, sound_index, get_energy, get_energy_mean, wave2stft_long, get_pitch_wave_long, get_pitch_samples_long, get_energy2
+from rednoise_fun import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, sound_index, get_energy_rms, get_energy_mean, get_energy_ms
 
 def match_len(matrix_list):
     matrix_lengths = [len(matrix) for matrix in matrix_list]
@@ -24,8 +24,6 @@ def hermes_wc(pitch_list, sumpower):
         den = np.sqrt(sum(sumpower[i]*((pitch_list[0][i]-np.mean(pitch_list[0]))**2))*sum(sumpower[i]*((pitch_list[1][i]-np.mean(pitch_list[1]))**2)))
         coefficients.append(nom/den)
     return coefficients
-    
-    
     
 def long_term_info(y,sr):
     interval = 0.01
@@ -62,16 +60,15 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     #get mimic stft, samples, sampling rate
     y_stft, y, sr = wave2stft(wavefile)
     y_power = stft2power(y_stft)
-    #y_power_mean = get_power_mean(y_stft)
-    y_energy = get_energy(y_stft)
+    y_energy = get_energy_rms(y_stft)
     y_energy_mean = get_energy_mean(y_energy)
-    y_energy2 = get_energy2(y_stft)
+    y_energy2 = get_energy_ms(y_stft)
     y_energy2_mean = get_energy_mean(y_energy2)
     
     #get noise stft, samples, sampling rate
     n_stft, ny, nsr = wave2stft(noise)
     n_power = stft2power(n_stft)
-    n_energy = get_energy(n_stft)
+    n_energy = get_energy_rms(n_stft)
     n_energy_mean = get_energy_mean(n_energy)
     n_energy_var = np.var(n_energy)
     npow_mean = get_mean_bandwidths(n_power)
@@ -80,16 +77,15 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     #get target stft, samples, sampling rate
     t_stft, ty, tsr = wave2stft(target)
     t_power = stft2power(t_stft)
-    #t_power_mean = get_power_mean(t_power)
-    t_energy = get_energy(t_stft)
+    t_energy = get_energy_rms(t_stft)
     t_energy_mean = get_energy_mean(t_energy)
-    t_energy2 = get_energy2(t_stft)
+    t_energy2 = get_energy_ms(t_stft)
     t_energy2_mean = get_energy_mean(t_energy2)
     
 
     
     y_stftred = np.array([rednoise(npow_mean,npow_var,y_power[i],y_stft[i]) for i in range(y_stft.shape[0])])
-    y_rn_energy = get_energy(y_stftred)
+    y_rn_energy = get_energy_rms(y_stftred)
     y_nr = stft2wave(y_stftred,len(y))
 
     #save reduced noise mimic to see what's going on:
@@ -104,7 +100,7 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     
     #recompute power values with reduced noise noise signal:
     n_power_rn = stft2power(n_stftred)
-    n_energy_rn = get_energy(n_stftred)
+    n_energy_rn = get_energy_rms(n_stftred)
     n_energy_rn_mean = get_energy_mean(n_energy_rn)
     npow_rn_mean = get_mean_bandwidths(n_power_rn)
     n_energy_rn_var = np.var(n_energy_rn)

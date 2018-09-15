@@ -10,7 +10,6 @@ Created on Mon May 14 16:13:28 2018
 import glob
 import os
 import datetime
-import matplotlib.pyplot as plt
 import random
 import numpy as np
 import sounddevice as sd
