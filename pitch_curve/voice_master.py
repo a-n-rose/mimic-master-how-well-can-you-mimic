@@ -41,7 +41,8 @@ class Mimic_Game:
 
         
     def enter_username(self):
-        username = input("Please enter your username: ")
+        print("Please enter your username: ")
+        username = input()
         if username:
             return username
         else:
@@ -53,7 +54,8 @@ class Mimic_Game:
         return(time_str)
     
     def start_game(self,action,username = None):
-        user_ready = input("Press ENTER to {} or type 'exit' to leave: ".format(action))
+        print("Press ENTER to {} or type 'exit' to leave: ".format(action))
+        user_ready = input()
         if user_ready == '':
             if username:
                 print("Great!")

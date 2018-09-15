@@ -27,8 +27,7 @@ if __name__ == '__main__':
         logging.info("Session: {}".format(session_name))
 
         currgame = Mimic_Game()
-        #username = currgame.start_game('start', username = True)
-        username = 'Aislyn'
+        username = currgame.start_game('start', username = True)
         currgame.username = username
         max_points = 1000
         directory_mim = './soundfiles/'
