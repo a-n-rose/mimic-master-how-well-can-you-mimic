@@ -75,12 +75,17 @@ if __name__ == '__main__':
                             print("You call that a mimic? No points earned. Try again!")
 
                         print("Total points earned: {}".format(currgame.points))
+                        logging.info("Sound to mimic: {}".format(mim_filename))
+                        logging.info("User's mimic: {}".format(usr_recfilename))
+                        logging.info("Score user earned: {}".format(score))
+                        logging.info("Total points earned: {}".format(currgame.points))
                     else:
                         print("Thanks for playing!")
                         currgame.points = max_points
                         currgame.close_game()
                 if currgame.cont_game:
                     print("\nCongratulations!!! You're a MIMIC MASTER!!")
+                    logging.info("Congratulations!!! You're a MIMIC MASTER!!")
                 currgame.cont_game = False
                 currgame.close_game()
                 #shutil.rmtree(directory_user)
