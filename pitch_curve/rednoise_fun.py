@@ -16,10 +16,10 @@ Other research using fft to capture speech features have used 25ms windows w 10m
 """
 
 import numpy as np
-from numpy.lib import stride_tricks
 import librosa
-from scipy import signal
 import datetime
+
+interval = 0.01
 
 def get_date():
     time = datetime.datetime.now()
@@ -34,7 +34,16 @@ def wave2stft(wavefile):
     stft = np.transpose(stft)
     return stft, y, sr
 
+def wave2stft_long(wavefile):
+    y, sr = librosa.load(wavefile)
+    if len(y)%2 != 0:
+        y = y[:-1]
+    stft = librosa.stft(y,hop_length=int(interval*sr),n_fft=int(0.256*sr))
+    stft = np.transpose(stft)
+    return stft, y, sr
+
 def stft2wave(stft,len_origsamp):
+    sr=22050
     istft = np.transpose(stft.copy())
     samples = librosa.istft(istft,length=len_origsamp)
     return samples
@@ -54,23 +63,36 @@ def get_energy_mean(energy_list):
     mean = sum(energy_list)/len(energy_list)
     return mean
 
-def get_pitch(wavefile):
+def get_pitch_wave(wavefile):
     y, sr = librosa.load(wavefile)
     if len(y)%2 != 0:
         y = y[:-1]
     pitches,mag = librosa.piptrack(y=y,sr=sr)
     return pitches,mag
 
-def get_pitch2(y,sr):
+def get_pitch_samples(y,sr):
     pitches,mag = librosa.piptrack(y=y,sr=sr)
+    return pitches,mag
+
+def get_pitch_wave_long(wavefile):
+    y,sr = librosa.load(wavefile)
+    if len(y)%2 != 0:
+        y = y[:-1]
+    pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr),n_fft=int(0.256*sr))
+    return pitches,mag
+
+def get_pitch_samples_long(y,sr):
+    pitches,mag = librosa.piptrack(y=y,sr=sr,hop_length=int(interval*sr),n_fft=int(0.256*sr))
     return pitches,mag
 
 def get_pitch_mean(matrix_pitches):
     p = matrix_pitches.copy()
     p_mean = [np.mean(p[:,time_unit]) for time_unit in range(p.shape[1])]
     p_mean = np.transpose(p_mean)
-    #remove beginning artifacts:
-    pmean = p_mean[int(len(p_mean)*0.07):]
+    #remove beginning and ending artifacts:
+    start = int(len(p_mean)*0.07)
+    end = len(p_mean)-start
+    pmean = p_mean[int(len(p_mean)*0.07):end]
     return pmean
               
 def pitch_sqrt(pitch_mean):
@@ -110,29 +132,27 @@ def matchvol(target_powerspec, speech_powerspec, speech_stft):
     return stft
 
 
-def suspended_energy(rms_speech,row,rms_mean_noise,start):
+def suspended_energy(speech_energy,row,speech_energy_mean,start):
     if start == True:
-        if rms_speech[row+1] and rms_speech[row+2] > rms_mean_noise:
+        if speech_energy[row+1] and speech_energy[row+2] and speech_energy[row+3] > speech_energy_mean:
             return True
     else:
-        if rms_speech[row-1] and rms_speech[row-2] > rms_mean_noise:
+        if speech_energy[row-1] and speech_energy[row-2] and speech_energy[row-3] > speech_energy_mean:
             return True
 
 
-def sound_index(rms_speech, start = True, rms_mean_noise = None):
-    if rms_mean_noise == None:
-        rms_mean_noise = 1
+def sound_index(speech_energy, speech_energy_mean,start = True,):
     if start == True:
         side = 1
         beg = 0
-        end = len(rms_speech)
+        end = len(speech_energy)
     else:
         side = -1
-        beg = len(rms_speech)-1
+        beg = len(speech_energy)-1
         end = -1
     for row in range(beg,end,side):
-        if rms_speech[row] > rms_mean_noise:
-            if suspended_energy(rms_speech,row,rms_mean_noise,start=start):
+        if speech_energy[row] > speech_energy_mean:
+            if suspended_energy(speech_energy,row,speech_energy_mean,start=start):
                 if start==True:
                     #to catch plosive sounds
                     while row >= 0:
@@ -144,11 +164,11 @@ def sound_index(rms_speech, start = True, rms_mean_noise = None):
                     return row,True
                 else:
                     #to catch quiet consonant endings
-                    while row <= len(rms_speech):
+                    while row <= len(speech_energy):
                         row += 1
                         row += 1
-                        if row > len(rms_speech):
-                            row = len(rms_speech)
+                        if row > len(speech_energy):
+                            row = len(speech_energy)
                         break
                     return row,True
     else:
