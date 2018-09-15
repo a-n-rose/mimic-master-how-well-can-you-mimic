@@ -75,10 +75,10 @@ if __name__ == '__main__':
                             print("You call that a mimic? No points earned. Try again!")
 
                         print("Total points earned: {}".format(currgame.points))
-                        logging.info("Sound to mimic: {}".format(mim_filename))
-                        logging.info("User's mimic: {}".format(usr_recfilename))
-                        logging.info("Score user earned: {}".format(score))
-                        logging.info("Total points earned: {}".format(currgame.points))
+                        logging.info("Sound to mimic: \n{}".format(mim_filename))
+                        logging.info("User's mimic: \n{}".format(usr_recfilename))
+                        logging.info("Score user earned: \n{}".format(score))
+                        logging.info("Total points earned: \n{}".format(currgame.points))
                     else:
                         print("Thanks for playing!")
                         currgame.points = max_points
