@@ -1,7 +1,7 @@
  
 # Mimic Master
 
-A game using pitch analysis to compare target sounds and mimicked sounds. Note: the files appended with '_long' are versions implementing the game with longer proccessing windows (20 - 256ms), which allows 'long-term' pitch information to be included. Those without include solely local pitch information (0ms windows). For more on this, you can read my <a href="https://a-n-rose.github.io/2018/08/29/comparing-prosody.html">blogpost<a/>.
+A game using pitch analysis to compare target sounds and mimicked sounds. For more on this, you can read my <a href="https://a-n-rose.github.io/2018/08/29/comparing-prosody.html">blogpost<a/>.
 
 ## Getting Started
 
@@ -41,7 +41,9 @@ deactivate
 ```
 
 ## ToDo
-* improve on the voice activity detection functions.
+* Combine acoustic fingerprints with comparison of pitch curve
+* Apply other ways of comparison - wavelet 
+* Do something about this: /util/utils.py:826: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
 
 ## Authors
 
