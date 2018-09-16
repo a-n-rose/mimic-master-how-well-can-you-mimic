@@ -54,7 +54,7 @@ def clip_around_sounds(sound_type,stft,samples_length,energy_length,start_index,
 
     return stft_start, len_ms
 
-def wave2pitchmeansqrt(wavefile, target, noise):
+def wave2pitchcompare(wavefile, target, noise):
     #for saving wavefiles - w unique names
     date = get_date()
     
