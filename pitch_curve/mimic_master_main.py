@@ -8,8 +8,8 @@ Created on Tue May 15 22:22:15 2018
 import os
 import numpy as np
 
-from voice_master import Mimic_Game
-from rednoise_run import wave2pitchcompare
+from mimic_master import Mimic_Game
+from compare_signals import wave2pitchcompare
 
 import logging.handlers
 from my_logger import start_logging, get_date
