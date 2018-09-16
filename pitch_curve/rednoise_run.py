@@ -179,13 +179,17 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         coefficients_noise = hermes_wc(pitchlist_noise,sumpower_noise)
         score_noise = sum(coefficients_noise)
     
+        
+        #this part is a bit experimental
+        #I want to avoid giving points to someone whose random mimic somehow scores better than background noise
         score=1
         #see if energy levels correspond
-        #mim_energy_clipped = get_energy_rms(stft_mclipped)
-        #targ_energy_clipped = get_energy_ms(stft_tclipped)
+        mim_energy_clipped = get_energy_rms(stft_mclipped)
+        targ_energy_clipped = get_energy_ms(stft_tclipped)
         #score = check_energy(mim_energy_clipped,targ_energy_clipped)
+        score = find_peaks_valleys(mim_energy_clipped,targ_energy_clipped)
         
-        if score > 0 and score_mimic and score_noise and score_mimic > score_noise:
+        if score_mimic and score > 0 and score_noise and score_mimic > score_noise:
             diff = score_mimic - score_noise
             score = int(abs(diff) * 100)
             print("Similarity of your mimic to the sound: {}".format(score_mimic))

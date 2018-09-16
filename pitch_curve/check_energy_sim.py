@@ -6,6 +6,49 @@
 
 import numpy as np
 
+def find_peaks_valleys(energy_list1,energy_list2):
+    '''
+    find the peaks and valleys of energy in the signals
+    '''
+    #threshold = 10%
+    #get max energy levels:
+    maxmin_perc = 10
+    maxmin_perc *= 0.01
+    
+    max_l1 = np.max(energy_list1)
+    max_l2 = np.max(energy_list2)
+    
+    #get min energy levels:
+    min_l1 = np.min(energy_list1)
+    min_l2 = np.min(energy_list2)
+    
+    diff_l1 = max_l1 - min_l1
+    diff_l2 = max_l2 - min_l2
+    
+    top_l1 = diff_l1-(diff_l1*maxmin_perc)
+    low_l1 = diff_l1*maxmin_perc
+    top_l2 = diff_l2-(diff_l2*maxmin_perc)
+    low_l2 = diff_l2*maxmin_perc
+    
+    #collect values above or below these values
+    items_highl1 = [energy_list1[i] for i in range(len(energy_list1)) if energy_list1[i] > top_l1]
+    items_highl2 = [energy_list2[i] for i in range(len(energy_list2)) if energy_list2[i] > top_l2]
+    items_lowl1 = [energy_list1[i] for i in range(len(energy_list1)) if energy_list1[i] < low_l1]
+    items_lowl2 = [energy_list2[i] for i in range(len(energy_list2)) if energy_list2[i] < low_l2]
+    
+    if len(items_highl2) == len(items_highl1) or len(items_highl2) == len(items_highl1)+1 or len(items_highl2) == len(items_highl1) +2 or len(items_highl2) == len(items_highl1)-1 or len(items_highl2) == len(items_highl1)-2:
+        score = 1
+    elif len(items_lowl2) == len(items_lowl1) or len(items_lowl2) == len(items_lowl1)+1 or len(items_lowl2) == len(items_lowl1) +2 or len(items_lowl2) == len(items_lowl1)-1 or len(items_lowl2) == len(items_lowl1)-2:
+        score = 1
+    else:
+        score = 0
+    print("items of high points in first energy array: {}".format(items_highl1))
+    print("items of high points in second energy array: {}".format(items_highl2))
+    print("items of low points in first energy array: {}".format(items_lowl1))
+    print("items of low points in first energy array: {}".format(items_lowl2))
+    return score
+
+
 def check_energy(energy_list1,energy_list2):
     '''
     I will do this by dividing the mimic and target into four sections and see that the energy changes follow similar patterns
@@ -74,3 +117,5 @@ def check_energy(energy_list1,energy_list2):
     print("Target energy levels: {}".format(target_sections))
     print("Target order: {}".format(target_order))
     return score
+
+
