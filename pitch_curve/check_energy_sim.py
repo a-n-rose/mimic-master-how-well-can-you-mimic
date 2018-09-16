@@ -6,15 +6,22 @@
 
 import numpy as np
 
+def collect_items_threshold(list_items,value,greater = True):
+    if greater == True:
+        list_items = [list_items[i] for i in range(len(list_items)) if list_items[i] > value]
+    else:
+        list_items = [list_items[i] for i in range(len(list_items)) if list_items[i] < value]
+    return list_items
+
 def find_peaks_valleys(energy_list1,energy_list2):
     '''
     find the peaks and valleys of energy in the signals
     '''
     #threshold = 10%
-    #get max energy levels:
     maxmin_perc = 10
     maxmin_perc *= 0.01
     
+    #get max energy levels:
     max_l1 = np.max(energy_list1)
     max_l2 = np.max(energy_list2)
     
@@ -31,11 +38,12 @@ def find_peaks_valleys(energy_list1,energy_list2):
     low_l2 = diff_l2*maxmin_perc
     
     #collect values above or below these values
-    items_highl1 = [energy_list1[i] for i in range(len(energy_list1)) if energy_list1[i] > top_l1]
-    items_highl2 = [energy_list2[i] for i in range(len(energy_list2)) if energy_list2[i] > top_l2]
-    items_lowl1 = [energy_list1[i] for i in range(len(energy_list1)) if energy_list1[i] < low_l1]
-    items_lowl2 = [energy_list2[i] for i in range(len(energy_list2)) if energy_list2[i] < low_l2]
+    items_highl1 = collect_items_threshold(energy_list1,top_l1,greater=True)
+    items_highl2 = collect_items_threshold(energy_list2,top_l2,greater=True)
+    items_lowl1 = collect_items_threshold(energy_list1,low_l1,greater=False)
+    items_lowl2 = collect_items_threshold(energy_list2,low_l2,greater=False)
     
+    #check if numbers of 'peaks' and 'values' are approximately the same (+- 2):
     if len(items_highl2) == len(items_highl1) or len(items_highl2) == len(items_highl1)+1 or len(items_highl2) == len(items_highl1) +2 or len(items_highl2) == len(items_highl1)-1 or len(items_highl2) == len(items_highl1)-2:
         score = 1
     elif len(items_lowl2) == len(items_lowl1) or len(items_lowl2) == len(items_lowl1)+1 or len(items_lowl2) == len(items_lowl1) +2 or len(items_lowl2) == len(items_lowl1)-1 or len(items_lowl2) == len(items_lowl1)-2:
