@@ -181,7 +181,7 @@ def wave2pitchmeansqrt(wavefile, target, noise):
     
         score=1
         #see if energy levels correspond
-        #mim_energy_clipped = get_energy_ms(stft_mclipped)
+        #mim_energy_clipped = get_energy_rms(stft_mclipped)
         #targ_energy_clipped = get_energy_ms(stft_tclipped)
         #score = check_energy(mim_energy_clipped,targ_energy_clipped)
         

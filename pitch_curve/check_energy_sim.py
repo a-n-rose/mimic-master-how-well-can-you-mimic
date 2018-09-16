@@ -40,34 +40,29 @@ def check_energy(energy_list1,energy_list2):
     
     mimic_order = []
     for item in mim_sections:
-        value = int(mim_sections[mim_max]/item)
+        value = mim_sections[mim_max]/item
+        if value == float("inf") or value == float("-inf"):
+            value = 0
+        else:
+            value = int(value)
         mimic_order.append(value)
     
     target_order = []
     for item in target_sections:
-        value = int(target_sections[targ_max]/item)
+        value = target_sections[targ_max]/item
+        if value == float("inf") or value == float("-inf"):
+            value = 0
+        else:
+            value = int(value)
         target_order.append(value)
         
-    even_target = True
-    for item in target_order:
-        if item > 1:
-            even_target = False
-            
-    even_mimic = True
-    for item in mimic_order:
-        if item > 1:
-            even_mimic = False
                 
     score = 1
-    
-    if even_target != even_mimic:
-        print("Hmmmm did you try mimicking this sound or rather another sound?")
-        score = 0
         
-    if even_target == False and even_mimic == False:
+    if len(np.unique(target_order)) == len(np.unique(target_order)) or len(np.unique(target_order)) == len(np.unique(target_order))+1 or len(np.unique(target_order)) == len(np.unique(target_order))-1:
         targ_min = np.argmax(target_order)
         mim_min = np.argmax(mimic_order)
-        if targ_max != mim_max+1 or targ_max!= abs(mim_max-1) or targ_max != mim_max and targ_min != mim_min or targ_min != abs(mim_min-1) or targ_min != mim_min+1: 
+        if targ_max == mim_max+1 or targ_max== abs(mim_max-1) or targ_max == mim_max or targ_min == mim_min or targ_min == abs(mim_min-1) or targ_min == mim_min+1: 
             print("Hmmmm did you try mimicking this sound or rather another sound?")
             score = 0
             print("targmax = {}".format(targ_max))
