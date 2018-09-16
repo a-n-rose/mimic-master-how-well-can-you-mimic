@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+from check_energy_sim import check_energy
 from rednoise_fun import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, sound_index, get_energy_rms, get_energy_mean, get_energy_ms
 
 def match_len(matrix_list):
@@ -177,9 +178,14 @@ def wave2pitchmeansqrt(wavefile, target, noise):
         sumpower_noise = list(map(sum,powerlist_noise))
         coefficients_noise = hermes_wc(pitchlist_noise,sumpower_noise)
         score_noise = sum(coefficients_noise)
+    
+        score=1
+        #see if energy levels correspond
+        #mim_energy_clipped = get_energy_ms(stft_mclipped)
+        #targ_energy_clipped = get_energy_ms(stft_tclipped)
+        #score = check_energy(mim_energy_clipped,targ_energy_clipped)
         
-        
-        if score_mimic and score_noise and score_mimic > score_noise:
+        if score > 0 and score_mimic and score_noise and score_mimic > score_noise:
             diff = score_mimic - score_noise
             score = int(abs(diff) * 100)
             print("Similarity of your mimic to the sound: {}".format(score_mimic))
