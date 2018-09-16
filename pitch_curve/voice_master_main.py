@@ -5,11 +5,11 @@ Created on Tue May 15 22:22:15 2018
 
 @author: airos
 """
+import os
 import numpy as np
 
-from rednoise_run import wave2pitchcompare
 from voice_master import Mimic_Game
-import os
+from rednoise_run import wave2pitchcompare
 
 import logging.handlers
 from my_logger import start_logging, get_date
