@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 
 from check_energy_sim import check_energy
-from analyse_audio import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, sound_index, get_energy_rms, get_energy_ms, get_energy_mean, 
+from analyse_audio import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, sound_index, get_energy_rms, get_energy_ms, get_energy_mean
 
 def match_len(matrix_list):
     matrix_lengths = [len(matrix) for matrix in matrix_list]
