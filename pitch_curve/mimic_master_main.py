@@ -67,7 +67,7 @@ if __name__ == '__main__':
                         usr_recfilename = directory_user+username+'_'+time_str+'.wav'
                         currgame.save_rec(usr_recfilename,rep_mim,fs=22050)
 
-                        score = wave2pitchmeansqrt(usr_recfilename,mim_filename,currgame.noisefile)
+                        score = wave2pitchcompare(usr_recfilename,mim_filename,currgame.noisefile)
                         if score and score > 0:
                             print("Not bad! You earned {} points.".format(score))
                             currgame.points += score
