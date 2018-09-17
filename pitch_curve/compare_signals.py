@@ -3,7 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+#experimental: checking energy levels to see if the user actually mimics what they 'should' mimic
 from check_energy_sim import check_energy, find_peaks_valleys
+
+#analyses used to see if pitches are similar or not - this is how the similarity is measured
 from analyse_audio import rednoise, wave2stft, stft2power, get_mean_bandwidths, get_var_bandwidths, stft2wave, savewave, get_date, matchvol, sound_index, get_energy_rms, get_energy_ms, get_energy_mean
 
 def match_len(matrix_list):
@@ -184,10 +187,10 @@ def wave2pitchcompare(wavefile, target, noise):
         #I want to avoid giving points to someone whose random mimic somehow scores better than background noise
         score=1
         #see if energy levels correspond
-        mim_energy_clipped = get_energy_rms(stft_mclipped)
-        targ_energy_clipped = get_energy_ms(stft_tclipped)
+        #mim_energy_clipped = get_energy_rms(stft_mclipped)
+        #targ_energy_clipped = get_energy_ms(stft_tclipped)
         #score = check_energy(mim_energy_clipped,targ_energy_clipped)
-        score = find_peaks_valleys(mim_energy_clipped,targ_energy_clipped)
+        #score = find_peaks_valleys(mim_energy_clipped,targ_energy_clipped)
         
         if score_mimic and score > 0 and score_noise and score_mimic > score_noise:
             diff = score_mimic - score_noise

@@ -1,10 +1,15 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May 15 22:22:15 2018
+'''
+Runs game that plays target sound and records user mimicking the sound.
 
-@author: airos
-"""
+Analyses are conducted to first reduce noise, clip beginning and ending silences, and adjust volume to 'match' that of the target (needs some work tho... sometimes volume levels are brought down quite low)
+
+Then pitch and power levels are used to compare similarity using long-term windows (256ms) at small window shifts (10ms). The values are compared using the Hermes weighted correlation coefficient (HWCC).
+
+Scores are calculated by getting the difference between the HWCCs of the mimic and target and those of background noise and the target. If the mimic values are higher than the background noise, points are earned. 
+
+Problems: 
+Sometimes a random mimic can outperform background noise. That means that while they would get a higher score for actually mimicking the sound vs a random sound, they might still earn points for making random sounds. Therefore, the game relies on the good nature of the user in actually mimicking the sounds they should mimic. I'm working on ways to check if the user is actually trying to mimic the sound. 
+'''
 import os
 import numpy as np
 
@@ -22,11 +27,12 @@ session_name = get_date() #make sure this session has a unique identifier - link
 
 if __name__ == '__main__':
     try:
+        currgame = Mimic_Game()
+        
         start_logging(script_purpose)
         logging.info("Running script: {}".format(current_filename))
         logging.info("Session: {}".format(session_name))
-
-        currgame = Mimic_Game()
+        
         username = currgame.start_game('start', username = True)
         currgame.username = username
         max_points = 1000
@@ -87,7 +93,9 @@ if __name__ == '__main__':
                     print("\nCongratulations!!! You're a MIMIC MASTER!!")
                     logging.info("Congratulations!!! You're a MIMIC MASTER!!")
                 currgame.cont_game = False
-                currgame.close_game()
                 #shutil.rmtree(directory_user)
     except Exception as e:
         logging.exception("Error occurred: %s" % e)
+    finally: 
+        if currgame:
+            currgame.close_game()

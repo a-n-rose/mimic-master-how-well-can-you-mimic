@@ -16,6 +16,9 @@ def collect_items_threshold(list_items,value,greater = True):
 def find_peaks_valleys(energy_list1,energy_list2):
     '''
     find the peaks and valleys of energy in the signals
+    Still have problem of how to say the two signals have similar patterns of peaks and valleys.
+    
+    Work in progress
     '''
     #threshold = 10%
     maxmin_perc = 10
