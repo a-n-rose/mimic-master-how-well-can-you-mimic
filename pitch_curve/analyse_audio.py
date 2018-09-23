@@ -49,9 +49,15 @@ def stft2wave(stft,len_origsamp):
     return samples
 
 def stft2power(stft_matrix):
-    stft = stft_matrix.copy()
-    power = np.abs(stft)**2
-    return power
+    if stft_matrix is not None:
+        if len(stft_matrix) > 0:
+            stft = stft_matrix.copy()
+            power = np.abs(stft)**2
+            return power
+        else:    
+            raise TypeError("STFT Matrix is empty. Function 'stft2power' needs a non-empty matrix.")
+    else:
+        raise TypeError("STFT Matrix does not exist. Function 'stft2power' needs an existing matrix.")
 
 def get_energy_rms(stft_matrix):
     #stft.shape[1] == bandwidths/frequencies

@@ -72,7 +72,6 @@ if __name__ == '__main__':
                         time_str = currgame.get_date()
                         usr_recfilename = directory_user+username+'_'+time_str+'.wav'
                         currgame.save_rec(usr_recfilename,rep_mim,fs=22050)
-
                         score = wave2pitchcompare(usr_recfilename,mim_filename,currgame.noisefile)
                         if score and score > 0:
                             print("Not bad! You earned {} points.".format(score))
@@ -94,6 +93,8 @@ if __name__ == '__main__':
                     logging.info("Congratulations!!! You're a MIMIC MASTER!!")
                 currgame.cont_game = False
                 #shutil.rmtree(directory_user)
+    except TypeError as te:
+        logging.error("TypeError: %s" % te)
     except Exception as e:
         logging.exception("Error occurred: %s" % e)
     finally: 

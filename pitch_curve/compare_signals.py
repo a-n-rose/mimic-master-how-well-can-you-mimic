@@ -14,10 +14,16 @@ def match_len(matrix_list):
     min_index = np.argmin(matrix_lengths)
     newlen = matrix_lengths[min_index]
     matched_matrix_list = []
+    len_list = []
+    col_list = []
     for item in matrix_list:
         item = item[:newlen]
+        len_list.append(item.shape[0])
+        col_list.append(item.shape[1])
         matched_matrix_list.append(item)
-    return matched_matrix_list
+    if len(set(col_list)) > 1:
+        raise ValueError("The columns of the matrices must have the same number for 'match_len' in order for lengths to match.")
+    return matched_matrix_list, len_list
 
 def hermes_wc(pitch_list, sumpower):
     if len(pitch_list) != 2:
@@ -143,7 +149,7 @@ def wave2pitchcompare(wavefile, target, noise):
         t_sound = stft2wave(t_stft_sound,len(ty))
         filename_targetsound = './processed_recordings/adjusted_targetsound_{}'.format(date)
         savewave(filename_targetsound+'.wav',t_sound,sr)
- 
+
         
         #clip the file (don't include silence at end)
         
@@ -169,15 +175,15 @@ def wave2pitchcompare(wavefile, target, noise):
 
         #compare pitch w hermes weighted correlation and time warping 
         #target and mimic
-        powerlist_mimic = match_len([power_tclipped,power_mclipped])
-        pitchlist_mimic = match_len([pitch_tclipped,pitch_mclipped])
+        powerlist_mimic, _ = match_len([power_tclipped,power_mclipped])
+        pitchlist_mimic, _ = match_len([pitch_tclipped,pitch_mclipped])
         sumpower_mimic = list(map(sum,powerlist_mimic))
         coefficients_mimic = hermes_wc(pitchlist_mimic,sumpower_mimic)
         score_mimic = sum(coefficients_mimic)
         
         #target and noise
-        powerlist_noise = match_len([power_tclipped,power_nlong])
-        pitchlist_noise = match_len([pitch_tclipped,pitch_nlong])
+        powerlist_noise, _ = match_len([power_tclipped,power_nlong])
+        pitchlist_noise, _ = match_len([pitch_tclipped,pitch_nlong])
         sumpower_noise = list(map(sum,powerlist_noise))
         coefficients_noise = hermes_wc(pitchlist_noise,sumpower_noise)
         score_noise = sum(coefficients_noise)
@@ -203,3 +209,4 @@ def wave2pitchcompare(wavefile, target, noise):
     else:
         print("Hmmmmm.. I didn't catch that. If this problem persists, type 'exit' and check your mic.")
         return None
+
